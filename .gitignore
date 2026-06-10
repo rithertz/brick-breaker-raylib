@@ -1,0 +1,16 @@
+# Executables
+*.exe
+main
+
+# Build outputs
+build/
+
+# Debug symbols
+*.dsym
+
+# Temporary files
+*.o
+*.obj
+
+# OS files
+.DS_Store
