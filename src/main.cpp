@@ -1,5 +1,6 @@
 #include<raylib.h>
-#include "paddle.hpp"
+#include "game.hpp"
+
 
 // Global Constants
 const int FPS = 60;
@@ -11,22 +12,17 @@ const Color backgroundColor = { 25, 30, 45, 255 };
 int main(){
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Brick Breaker");
     SetTargetFPS(FPS);
-    Paddle paddle(Rectangle{580, 640, 120, 25});
+    Game game;
     // Game Loop
     while(!WindowShouldClose()){
         // 1. Event Handling
+        game.handleInput();
         // 2. Updating positions
-        float deltaTime = GetFrameTime();
-        if(IsKeyDown(KEY_A)){
-            paddle.moveLeft(deltaTime);
-        }
-        else if(IsKeyDown(KEY_D)){
-            paddle.moveRight(deltaTime);
-        }
+        game.update();
         // 3. Drawing
         BeginDrawing();
         ClearBackground(backgroundColor);
-        paddle.drawPaddle();
+        game.draw();
         EndDrawing();
     }
     CloseWindow(); 
