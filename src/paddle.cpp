@@ -42,3 +42,8 @@ void Paddle::moveRight(float dt)
         bounds.x = GetScreenWidth() - bounds.width;
     }
 }
+
+Rectangle Paddle::getBounds() const
+{
+    return bounds;
+}

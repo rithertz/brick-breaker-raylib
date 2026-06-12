@@ -1,7 +1,9 @@
 #include "ball.hpp"
-
+#include "raymath.h"
 void Ball::handleCollision()
 {
+    // Checks screen boundaries and reverses ball direction when hitting walls.
+    // Also clamps position to prevent the ball from getting stuck outside the screen.
     if(position.x - radius < 0){
         position.x = radius;
         invertXVelocity();
@@ -48,4 +50,49 @@ void Ball::update(float dt)
     position.x += velocity.x * dt;
     position.y += velocity.y * dt;
     handleCollision();
+}
+
+Vector2 Ball::getPosition()
+{
+    return position;
+}
+
+float Ball::getRadius()
+{
+    return radius;
+}
+
+void Ball::handlePaddleCollision(float paddleTopY, float normalizedImpactOffset)
+{   
+    // place ball above paddle to avoid unwanted effects
+    position.y = paddleTopY - radius;
+
+    // magnitude of velocity vector
+    float ballSpeed = Vector2Length(velocity);
+
+    // update Vx & Vy
+    float maxHorizonatalInfluence= 0.95;
+    velocity.x = maxHorizonatalInfluence * normalizedImpactOffset * ballSpeed; 
+    velocity.y = std::sqrt(ballSpeed * ballSpeed - velocity.x * velocity.x);
+    invertYVelocity();
+}
+
+bool Ball::isMovingDown() const
+{
+    return velocity.y > 0;
+}
+
+bool Ball::isMovingRight() const
+{
+    return velocity.x > 0;
+}
+
+bool Ball::isMovingLeft() const
+{
+    return velocity.x < 0;
+}
+
+bool Ball::isMovingUp() const
+{
+    return velocity.y < 0;
 }

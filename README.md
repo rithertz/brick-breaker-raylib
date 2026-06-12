@@ -26,7 +26,7 @@ A Brick Breaker clone built completely from scratch in C++ using Raylib.
 * 1280x720 game window
 * 60 FPS game loop
 
-### Milestone 1 — Paddle
+### Milestone 1 - Paddle
 
 Completed:
 
@@ -44,11 +44,19 @@ Completed:
 * Ball class created
 * Ball rendering implemented
 * Frame-independent ball movement implemented
-* Wall collision detection implemented
-* Ball reflection on all four screen boundaries implemented
+* Ball-wall collision detection and reflection implemented
 * Game class now composes and manages all gameplay entities:
   - Paddle (ownership, input handling, update/draw delegation)
   - Ball (ownership, frame-independent movement, collision detection)
+
+### Milestone 3 - Paddle-Ball Collision
+
+Completed:
+
+* Paddle-ball collision detection & response system implemented
+* Dynamic bounce angles ball repositioning based on impact position implemented
+* Constant ball speed preserved across paddle collisions
+* Collision filtering and Center-hit loop prevention implemented to prevent invalid side collisions and head-on collisions
 
 ## Screenshots
 
@@ -66,7 +74,6 @@ Completed:
 
 ### Core Gameplay
 
-* Paddle-Ball collision
 * Bricks
 * Brick destruction
 * Multiple levels

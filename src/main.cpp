@@ -3,7 +3,7 @@
 
 
 // Global Constants
-const int FPS = 60;
+const int FPS = 120;
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
 const Color backgroundColor = { 25, 30, 45, 255 };

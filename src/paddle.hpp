@@ -11,5 +11,5 @@ class Paddle{
         void drawPaddle() const;
         void moveLeft(float dt);
         void moveRight(float dt);
-        inline Rectangle getBounds() const;
+        Rectangle getBounds() const;
 };
