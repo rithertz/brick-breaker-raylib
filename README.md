@@ -63,9 +63,14 @@ Completed:
 Completed:
 
 * Brick class created
-* Multiple brick management and rendering implemented using std::vector
+* Brick rendering implemented
+* Multiple brick management implemented using std::vector
+* Brick field generation implemented
 * Ball-brick collision detection implemented
 * Brick destruction system implemented
+* Brick state management implemented using alive/dead states
+* Ball penetration prevention implemented using previous-position tracking
+* Brick side-collision detection and response implemented
 * First playable Brick Breaker gameplay loop completed
 
 ## Screenshots

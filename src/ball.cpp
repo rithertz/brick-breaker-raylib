@@ -36,6 +36,7 @@ Ball::Ball(Vector2 initialPosition, Vector2 intialVelocity) : position(initialPo
 {
     radius = 10.0f;
     ballColor = {240, 245, 255, 255};
+    previousPosition = position;
 }
 
 void Ball::drawBall() const
@@ -45,7 +46,8 @@ void Ball::drawBall() const
 }
 
 void Ball::update(float dt)
-{
+{   
+    previousPosition = position;
     // Update position - frame independent
     position.x += velocity.x * dt;
     position.y += velocity.y * dt;
@@ -96,3 +98,15 @@ bool Ball::isMovingUp() const
 {
     return velocity.y < 0;
 }
+
+void Ball::revertToPreviousPosition()
+{
+    position = previousPosition;
+}
+
+Vector2 Ball::getPreviousPosition() const
+{
+    return previousPosition;
+}
+
+

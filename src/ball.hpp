@@ -3,7 +3,7 @@
 
 class Ball{
     private:
-        Vector2 position, velocity;
+        Vector2 position, previousPosition, velocity;
         Color ballColor;
         float radius;
 
@@ -23,4 +23,6 @@ class Ball{
         bool isMovingRight() const;
         bool isMovingLeft() const;
         bool isMovingUp() const;
+        void revertToPreviousPosition();
+        Vector2 getPreviousPosition() const;
 };

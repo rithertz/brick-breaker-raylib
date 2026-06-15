@@ -11,8 +11,8 @@ Brick::Brick(Rectangle bounds)
 void Brick::draw() const
 {
     if(alive){
-        DrawRectangleRec(bounds, brickColor);
-        DrawRectangleLinesEx(bounds, 2, Fade(WHITE, 0.15f));
+        DrawRectangleRounded(bounds, 0.15f, 8, brickColor);
+        DrawRectangleRoundedLines(bounds, 0.12f, 8, Fade(WHITE, 0.15f));
     }
 }
 
