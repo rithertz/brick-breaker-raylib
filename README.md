@@ -54,9 +54,19 @@ Completed:
 Completed:
 
 * Paddle-ball collision detection & response system implemented
-* Dynamic bounce angles ball repositioning based on impact position implemented
+* Dynamic bounce angles and ball repositioning based on impact position implemented
 * Constant ball speed preserved across paddle collisions
-* Collision filtering and Center-hit loop prevention implemented to prevent invalid side collisions and head-on collisions
+* Collision filtering and Center-hit loop prevention implemented
+
+### Milestone 4 - Bricks & Brick Destruction
+
+Completed:
+
+* Brick class created
+* Multiple brick management and rendering implemented using std::vector
+* Ball-brick collision detection implemented
+* Brick destruction system implemented
+* First playable Brick Breaker gameplay loop completed
 
 ## Screenshots
 
@@ -69,14 +79,16 @@ Completed:
 
 ![Milestone 2 Ball](screenshots/milestone-2-ball.png)
 
+### Milestone 4 - Bricks
+![Milestone 4 Bricks](screenshots/milestone-4-bricks.png)
+
 
 ## Planned Features
 
 ### Core Gameplay
 
-* Bricks
-* Brick destruction
 * Multiple levels
+* Win consition
 
 ### Game Systems
 
@@ -100,12 +112,14 @@ Completed:
 ## Repository Structure
 
 ```text
-src/ 
-    ├── main.cpp 
-    ├── game.hpp 
-    ├── game.cpp 
-    ├── paddle.hpp 
-    ├── paddle.cpp 
-    ├── ball.hpp 
-    └── ball.cpp
+src/
+    ├── main.cpp
+    ├── game.hpp
+    ├── game.cpp
+    ├── paddle.hpp
+    ├── paddle.cpp
+    ├── ball.hpp
+    ├── ball.cpp
+    ├── brick.hpp
+    └── brick.cpp 
 ```

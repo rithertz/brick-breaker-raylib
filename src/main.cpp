@@ -1,5 +1,6 @@
 #include<raylib.h>
 #include "game.hpp"
+#include "brick.hpp"
 
 
 // Global Constants

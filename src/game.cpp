@@ -1,9 +1,10 @@
 #include "game.hpp"
 #include "raymath.h"
 
-Game::Game() : paddle(Rectangle{580, 640, 120, 25}),
+Game::Game() : paddle(Rectangle{580, 660, 120, 25}),
                ball({640, 630}, {300, 300})
 {
+    initializeBricks();
 }
 
 bool Game::checkCollisionWithPaddle()
@@ -40,6 +41,25 @@ float Game::getNormalizedImpactOffset()
     return normalizedOffset;
 }
 
+void Game::initializeBricks()
+{
+    for(int i  = 1; i <= 11; i++){
+        Rectangle newBrick = {float(100.0 * i), 180, 90, 25};
+        bricks.push_back(Brick(newBrick));
+    }
+}
+
+void Game::handleBrickCollisions() 
+{
+    for(Brick& brick : bricks){
+        if(brick.isAlive() && CheckCollisionCircleRec(ball.getPosition(), ball.getRadius(), brick.getBounds())){
+            brick.destroy();
+            ball.invertYVelocity();
+            break;
+        }
+    }
+}
+
 void Game::handleInput()
 {   
     float deltaTime = GetFrameTime();
@@ -59,10 +79,14 @@ void Game::update()
     if(checkCollisionWithPaddle()){
         handleCollisionWithPaddle();
     }
+    handleBrickCollisions();
 }
 
 void Game::draw()
 {
     paddle.drawPaddle();
     ball.drawBall();
+    for(const Brick& brick : bricks){
+        brick.draw();
+    }
 }
