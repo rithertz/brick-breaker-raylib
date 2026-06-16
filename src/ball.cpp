@@ -1,5 +1,7 @@
 #include "ball.hpp"
 #include "raymath.h"
+#include<iostream>
+using namespace std;
 void Ball::handleCollision()
 {
     // Checks screen boundaries and reverses ball direction when hitting walls.
@@ -12,10 +14,10 @@ void Ball::handleCollision()
         position.x = GetScreenWidth() - radius;
         invertXVelocity();
     }
-    if(position.y + radius > GetScreenHeight()){
-        position.y = GetScreenHeight() - radius;
-        invertYVelocity();
-    }
+    // if(position.y + radius > GetScreenHeight()){
+    //     position.y = GetScreenHeight() - radius;
+    //     invertYVelocity();
+    // }
     if(position.y - radius < 0){
         position.y = radius;
         invertYVelocity();
@@ -78,7 +80,6 @@ void Ball::handlePaddleCollision(float paddleTopY, float normalizedImpactOffset)
     velocity.y = std::sqrt(ballSpeed * ballSpeed - velocity.x * velocity.x);
     invertYVelocity();
 }
-
 bool Ball::isMovingDown() const
 {
     return velocity.y > 0;
@@ -109,4 +110,29 @@ Vector2 Ball::getPreviousPosition() const
     return previousPosition;
 }
 
+bool Ball::isOutOfBounds() const
+{
+    return position.y - radius > GetScreenHeight();
+}
 
+void Ball::reset()
+{
+    velocity = {300, 300};
+    previousPosition = position;
+}
+
+void Ball::setPosition(Vector2 newPosition)
+{
+    position = newPosition;
+    previousPosition = position;
+}
+
+void Ball::launch(float paddleCenterX)
+{   
+    if(paddleCenterX > GetScreenWidth() / 2){
+        velocity = {-300, -300};
+    }
+    else{
+        velocity = {300, -300};
+    }
+}

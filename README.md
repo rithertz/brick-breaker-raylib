@@ -64,14 +64,26 @@ Completed:
 
 * Brick class created
 * Brick rendering implemented
-* Multiple brick management implemented using std::vector
-* Brick field generation implemented
-* Ball-brick collision detection implemented
+* Multiple brick management and brick field generation implemented using std::vector
+* Ball-brick collision detection implemented (top, bottom & side collisions)
 * Brick destruction system implemented
 * Brick state management implemented using alive/dead states
 * Ball penetration prevention implemented using previous-position tracking
-* Brick side-collision detection and response implemented
-* First playable Brick Breaker gameplay loop completed
+* First partial playable gameplay loop 
+
+
+### Milestone 5 - Win/Lose Gameplay Loop
+
+Completed:
+
+* Lives system implemented
+* Ball launch mechanic implemented
+* Ball remains attached to paddle before launch
+* Ball reset system implemented after life loss
+* Level completion state implemented
+* Game over state implemented
+* Complete win/lose gameplay loop implemented
+* First playable version of Brick Breaker achieved
 
 ## Screenshots
 
@@ -87,13 +99,16 @@ Completed:
 ### Milestone 4 - Bricks
 ![Milestone 4 Bricks](screenshots/milestone-4-bricks.png)
 
+### Milestone 5 - Game-Over
+![Milestone 5 Game Over](screenshots/milestone-5-gameOver.png)
 
 ## Planned Features
 
 ### Core Gameplay
 
 * Multiple levels
-* Win consition
+* Win condition
+* Level progression
 
 ### Game Systems
 

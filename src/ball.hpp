@@ -25,4 +25,8 @@ class Ball{
         bool isMovingUp() const;
         void revertToPreviousPosition();
         Vector2 getPreviousPosition() const;
+        bool isOutOfBounds() const;
+        void reset();
+        void setPosition(Vector2 newPosition);
+        void launch(float paddleCenterX);
 };

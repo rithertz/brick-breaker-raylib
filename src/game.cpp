@@ -1,22 +1,33 @@
 #include "game.hpp"
 #include "raymath.h"
-
-Game::Game() : paddle(Rectangle{580, 660, 120, 25}),
-               ball({640, 630}, {300, 300}),
+#include<iostream>
+using namespace std;
+Game::Game() : paddle(Rectangle{580, 660, 150, 25}),
+               ball({640, 630}, {900, 900}),               
+               lives(3),
+               ballLaunched(false),
                currentState(GameState::PLAYING)
 {
     initializeBricks();
 }
 
+// bool Game::checkCollisionWithPaddle()
+// {
+//     // Checks for collision && if ball is moving down && ball is above paddle
+//     float ballBottom = ball.getPosition().y + ball.getRadius();
+//     float paddleBottom = paddle.getBounds().y + paddle.getBounds().height;
+
+//     return CheckCollisionCircleRec(ball.getPosition(), ball.getRadius(), paddle.getBounds()) 
+//         && ball.isMovingDown() 
+//         && ballBottom < paddleBottom;
+// }
+
 bool Game::checkCollisionWithPaddle()
 {
-    // Checks for collision && if ball is moving down && ball is above paddle
-    float ballBottom = ball.getPosition().y + ball.getRadius();
-    float paddleBottom = paddle.getBounds().y + paddle.getBounds().height;
-
-    return CheckCollisionCircleRec(ball.getPosition(), ball.getRadius(), paddle.getBounds()) 
+    // Check for collision && if ball is moving down && ball is above paddle
+    return CheckCollisionCircleRec(ball.getPosition(),ball.getRadius(),paddle.getBounds())
         && ball.isMovingDown() 
-        && ballBottom < paddleBottom;
+        && ball.getPreviousPosition().y < paddle.getBounds().y;
 }
 
 void Game::handleCollisionWithPaddle()
@@ -124,19 +135,48 @@ void Game::handleInput()
     if(IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)){
         paddle.moveRight(deltaTime);
     }
+    if(!ballLaunched && (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W)))
+    {   
+        float paddleCenterX = paddle.getBounds().x + paddle.getBounds().width/2;
+        ball.launch(paddleCenterX);
+        ballLaunched = true;
+    }
 }
 
 void Game::update()
 {   
     if(currentState == GameState::PLAYING){
         float deltaTime = GetFrameTime();
-        ball.update(deltaTime);
+        if(ballLaunched){
+            ball.update(deltaTime);
+        }
+        else{
+            float paddleCenterX = paddle.getBounds().x + paddle.getBounds().width / 2.0f;
+            float paddleTopY = paddle.getBounds().y;
+            ball.setPosition({paddleCenterX, paddleTopY - ball.getRadius()});
+        }
 
         if(checkCollisionWithPaddle()){
+            //cout << "Accepted collision" << endl;
             handleCollisionWithPaddle();
         }
+
         handleBrickCollisions();
+        
+        if(ball.isOutOfBounds()){
+            lives--;
+            if(lives <= 0){
+                ball.reset();
+                ballLaunched = false;
+                currentState = GameState::GAME_OVER;                  
+            }
+            else{
+                ball.reset();
+                ballLaunched = false;
+            }
+        }
         if(isLevelComplete()){
+            lives = 3;
             currentState = GameState::LEVEL_COMPLETE;
         }
     }
@@ -153,5 +193,9 @@ void Game::draw()
     if(currentState == GameState::LEVEL_COMPLETE){
         DrawText("LEVEL COMPLETE!", GetScreenWidth()/2 - 200, GetScreenHeight()/2 - 20, 40, WHITE);
     }
+    if(currentState == GameState::GAME_OVER){
+        DrawText("GAME OVER", GetScreenWidth()/2 - 150, GetScreenHeight()/2 - 20, 50, RED);
+    }
+    DrawText(TextFormat("Lives: %d", lives), 20, 20, 30, WHITE);
 }
 

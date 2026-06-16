@@ -10,13 +10,16 @@ using namespace std;
 enum class GameState
 {
     PLAYING,
-    LEVEL_COMPLETE
+    LEVEL_COMPLETE,
+    GAME_OVER
 };
 
 class Game{
-    private:
+    private:        
         Paddle paddle;
         Ball ball;
+        int lives;
+        bool ballLaunched;
         vector<Brick> bricks;
 
         GameState currentState;
