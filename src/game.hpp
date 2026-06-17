@@ -22,8 +22,8 @@ class Game{
         bool ballLaunched;
         int currentLevel;
         bool levelComplete;//temp test
+        int score;
         vector<Brick> bricks;
-
         GameState currentState;
 
         bool checkCollisionWithPaddle();
@@ -36,6 +36,10 @@ class Game{
         void loadLevel1();
         void loadLevel2();
         void loadLevel3();
+        void restartGame();
+        void resetLives();
+        void resetScore();
+        void resetLevel();
     public:
         Game();
         void handleInput();

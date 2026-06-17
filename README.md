@@ -23,8 +23,8 @@ A Brick Breaker clone built completely from scratch in C++ using Raylib.
 * GitHub repository created
 * Raylib configured
 * Window creation implemented
-* 1280x720 game window
-* 60 FPS game loop
+* 1280 x 720 game window
+* 120 FPS game loop
 
 ### Milestone 1 - Paddle
 
@@ -97,6 +97,20 @@ Completed:
 * Level counter UI implemented
 * Complete multi-level gameplay progression achieved
 
+### Milestone 7 - Score & Restart System
+
+Completed:
+
+* Score system implemented
+* Brick and level completion rewards implemented
+* Restart system implemented
+* Complete gameplay reset flow implemented
+* Final score display implemented
+* Win/Lose screen instructions implemented
+* Ball launch speed progression implemented
+* Gameplay difficulty scaling implemented
+
+
 ## Screenshots
 
 ### Milestone 1 - Paddle
@@ -114,19 +128,22 @@ Completed:
 ### Milestone 5 - Game-Over
 ![Milestone 5 Game Over](screenshots/milestone-5-gameOver.png)
 
+### Milestone 7 - Score & Restart
+![Milestone 7 Score & Restart](screenshots/milestone-7-score-restart.png)
+
 ## Planned Features
 
 ### Core Gameplay
 
-* Score system
-* Restart system
-* Final win screen polish
+* High score tracking
+* Additional brick types
+* Difficulty balancing
 
 ### Game Systems
 
-* Score system
-* Restart system
 * High score tracking
+* Save/load support
+* Settings menu
 
 ### Polish
 

@@ -1,7 +1,16 @@
 #include "ball.hpp"
 #include "raymath.h"
 #include<iostream>
-using namespace std;
+
+
+Ball::Ball(Vector2 initialPosition, Vector2 intialVelocity) : position(initialPosition), velocity(intialVelocity)
+{
+    radius = 10.0f;
+    ballColor = {240, 245, 255, 255};
+    previousPosition = position;
+    launchSpeed = 300.0f;
+}
+
 void Ball::handleCollision()
 {
     // Checks screen boundaries and reverses ball direction when hitting walls.
@@ -34,12 +43,7 @@ void Ball::invertYVelocity()
     velocity.y *= -1;
 }
 
-Ball::Ball(Vector2 initialPosition, Vector2 intialVelocity) : position(initialPosition), velocity(intialVelocity)
-{
-    radius = 10.0f;
-    ballColor = {240, 245, 255, 255};
-    previousPosition = position;
-}
+
 
 void Ball::drawBall() const
 {
@@ -130,9 +134,19 @@ void Ball::setPosition(Vector2 newPosition)
 void Ball::launch(float paddleCenterX)
 {   
     if(paddleCenterX > GetScreenWidth() / 2){
-        velocity = {-300, -300};
+        velocity = {-launchSpeed, -launchSpeed};
     }
     else{
-        velocity = {300, -300};
+        velocity = {launchSpeed, -launchSpeed};
     }
+}
+
+void Ball::increaseLaunchSpeed(float amount)
+{
+    launchSpeed += amount;
+}
+
+void Ball::resetLaunchSpeed()
+{
+    launchSpeed = 300.0f;
 }

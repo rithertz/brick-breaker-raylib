@@ -5,7 +5,7 @@ class Ball{
     private:
         Vector2 position, previousPosition, velocity;
         Color ballColor;
-        float radius;
+        float radius, launchSpeed;
 
         void handleCollision();
         
@@ -29,4 +29,6 @@ class Ball{
         void reset();
         void setPosition(Vector2 newPosition);
         void launch(float paddleCenterX);
+        void increaseLaunchSpeed(float amount);
+        void resetLaunchSpeed();
 };

@@ -1,15 +1,26 @@
 #include "game.hpp"
 #include "raymath.h"
-#include<iostream>
+#include <iostream>
 using namespace std;
+
+const Color SCORE_COLOR          = {255, 215, 100, 255};
+const Color LIVES_COLOR          = {255, 120, 120, 255};
+const Color LEVEL_COLOR          = {80, 220, 255, 255};
+const Color GAME_OVER_COLOR      = {255, 80, 80, 255};
+const Color LEVEL_COMPLETE_COLOR = {120, 255, 140, 255};
+const Color INSTRUCTION_COLOR = {200, 210, 230, 255};
+const int MAX_LIVES = 3;
+
+
 Game::Game() : paddle(Rectangle{580, 660, 150, 25}),
                ball({640, 630}, {900, 900}),               
-               lives(3),
+               lives(MAX_LIVES),
                ballLaunched(false),
                currentLevel(1),
                levelComplete(false),
+               score(0),
                currentState(GameState::PLAYING)
-{   
+{
     loadLevel(1);
     //initializeBricks();
 }
@@ -79,6 +90,7 @@ void Game::handleBrickCollisions()
             }
 
             brick.destroy();
+            score += 100;
             break;
         }
     }
@@ -183,9 +195,51 @@ void Game::loadLevel3()
         addBrick(3, col);
     }
 }
+void Game::resetLives()
+{
+    lives = MAX_LIVES;
+}
+void Game::resetScore()
+{
+    score = 0;
+}
+void Game::resetLevel()
+{
+    currentLevel = 1;
+    loadLevel(currentLevel);
+}
+void Game::restartGame()
+{
+    resetLives();
+    resetScore();
+    resetLevel();
+
+
+    paddle.reset();
+
+    ball.resetLaunchSpeed();
+    ball.reset();
+    ballLaunched = false;
+
+    currentState = GameState::PLAYING;
+}
 void Game::handleInput()
 {   
-    if(currentState != GameState::PLAYING){
+    if(currentState == GameState::GAME_OVER)
+    {
+        if(IsKeyPressed(KEY_ENTER))
+        {
+            restartGame();
+        }
+        return;
+    }
+
+    if(currentState == GameState::LEVEL_COMPLETE)
+    {
+        if(IsKeyPressed(KEY_ENTER))
+        {
+            restartGame();
+        }
         return;
     }
 
@@ -241,13 +295,16 @@ void Game::update()
             }
         }
         if(isLevelComplete() || levelComplete){
+            score += 500;
             levelComplete = false;
             
 
             if(currentLevel < 3){
+                // Increase level counter, load next level, reset entities 
                 currentLevel++;
                 loadLevel(currentLevel);
-                lives = 3;
+                ball.increaseLaunchSpeed(30.0f);
+                resetLives();
                 paddle.reset();
                 ball.reset();
                 ballLaunched = false;
@@ -267,14 +324,24 @@ void Game::draw()
     for(const Brick& brick : bricks){
         brick.draw();
     }
+    // if(currentState == GameState::LEVEL_COMPLETE){
+    //     DrawText("LEVEL COMPLETE!", GetScreenWidth()/2 - 200, GetScreenHeight()/2 - 20, 40, LEVEL_COMPLETE_COLOR);
+    // }
+    // if(currentState == GameState::GAME_OVER){
+    //     DrawText("GAME OVER", GetScreenWidth()/2 - 150, GetScreenHeight()/2 - 20, 50, GAME_OVER_COLOR);
+    // }
+    DrawText(TextFormat("Lives: %d", lives),20, 20, 30, LIVES_COLOR);
+    DrawText(TextFormat("Level: %d", currentLevel), 20, 55, 30, LEVEL_COLOR);
+    DrawText(TextFormat("Score: %d", score), 20, 90, 30, SCORE_COLOR);
     if(currentState == GameState::LEVEL_COMPLETE){
-        DrawText("LEVEL COMPLETE!", GetScreenWidth()/2 - 200, GetScreenHeight()/2 - 20, 40, RAYWHITE);
+        DrawText("YOU WIN!", GetScreenWidth()/2 - 120, GetScreenHeight()/2 - 50, 50, LEVEL_COMPLETE_COLOR);
+        DrawText("Press ENTER to play again", GetScreenWidth()/2 - 170, GetScreenHeight()/2 + 20, 25, INSTRUCTION_COLOR);
+        DrawText(TextFormat("Final Score: %d", score), GetScreenWidth()/2 - 120, GetScreenHeight()/2 + 60, 25, SCORE_COLOR);
     }
     if(currentState == GameState::GAME_OVER){
-        DrawText("GAME OVER", GetScreenWidth()/2 - 150, GetScreenHeight()/2 - 20, 50, RED);
+        DrawText("GAME OVER", GetScreenWidth()/2 - 150, GetScreenHeight()/2 - 50, 50, GAME_OVER_COLOR);
+        DrawText("Press ENTER to restart", GetScreenWidth()/2 - 150, GetScreenHeight()/2 + 20, 25, INSTRUCTION_COLOR);
+        DrawText(TextFormat("Final Score: %d", score), GetScreenWidth()/2 - 120, GetScreenHeight()/2 + 60, 25, SCORE_COLOR);
     }
-    DrawText(TextFormat("Lives : %d", lives), 20, 20, 30, RAYWHITE);
-    DrawText(
-    TextFormat("Level : %d", currentLevel), 20, 55, 30, RAYWHITE);
 }
 
