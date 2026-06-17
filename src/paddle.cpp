@@ -47,3 +47,8 @@ Rectangle Paddle::getBounds() const
 {
     return bounds;
 }
+
+void Paddle::reset()
+{
+    bounds.x = (GetScreenWidth() - bounds.width) / 2.0f;
+}

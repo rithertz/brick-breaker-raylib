@@ -12,4 +12,5 @@ class Paddle{
         void moveLeft(float dt);
         void moveRight(float dt);
         Rectangle getBounds() const;
+        void reset();
 };

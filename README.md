@@ -85,6 +85,18 @@ Completed:
 * Complete win/lose gameplay loop implemented
 * First playable version of Brick Breaker achieved
 
+### Milestone 6 - Level Progression
+
+Completed:
+
+* Multi-level architecture implemented
+* Reusable brick placement helper implemented
+* Three unique level layouts implemented
+* Automatic level progression implemented
+* Paddle and ball reset between levels implemented
+* Level counter UI implemented
+* Complete multi-level gameplay progression achieved
+
 ## Screenshots
 
 ### Milestone 1 - Paddle
@@ -106,16 +118,15 @@ Completed:
 
 ### Core Gameplay
 
-* Multiple levels
-* Win condition
-* Level progression
+* Score system
+* Restart system
+* Final win screen polish
 
 ### Game Systems
 
 * Score system
-* Lives system
-* Multiple levels
-* Win/Lose screens
+* Restart system
+* High score tracking
 
 ### Polish
 

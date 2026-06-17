@@ -20,6 +20,8 @@ class Game{
         Ball ball;
         int lives;
         bool ballLaunched;
+        int currentLevel;
+        bool levelComplete;//temp test
         vector<Brick> bricks;
 
         GameState currentState;
@@ -27,9 +29,13 @@ class Game{
         bool checkCollisionWithPaddle();
         void handleCollisionWithPaddle();
         float getNormalizedImpactOffset();
-        void initializeBricks();
         void handleBrickCollisions();
         bool isLevelComplete() const;
+        void addBrick(int row, int col);
+        void loadLevel(int levelNumber);
+        void loadLevel1();
+        void loadLevel2();
+        void loadLevel3();
     public:
         Game();
         void handleInput();
