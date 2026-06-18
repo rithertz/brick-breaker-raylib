@@ -1,10 +1,11 @@
 #include "brick.hpp"
 
-Brick::Brick(Rectangle bounds)
+Brick::Brick(Rectangle bounds, Color brickColor)
 {
     this->bounds = bounds;
     // brickColor = {255, 120, 80, 255};
-    brickColor = {247, 114, 47, 255};
+    // brickColor = {247, 114, 47, 255};
+    this->brickColor = brickColor;
     alive = true;
 }
 
@@ -29,4 +30,9 @@ Rectangle Brick::getBounds() const
 void Brick::destroy()
 {
     alive = false;
+}
+
+Color Brick::getColor() const
+{
+    return brickColor;
 }

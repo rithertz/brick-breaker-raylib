@@ -110,6 +110,19 @@ Completed:
 * Ball launch speed progression implemented
 * Gameplay difficulty scaling implemented
 
+### Milestone 8 - Game Feel & Polish
+
+Completed:
+
+* Row-based brick coloring implemented
+* Sound effects implemented for:
+  - Paddle collisions
+  - Brick destruction
+  - Level completion
+  - Game over
+* Particle system for brick destruction implemented
+* Particle lifetime management with brick-colored particle bursts implemented
+* Improved gameplay feedback and visual polish
 
 ## Screenshots
 
@@ -147,8 +160,9 @@ Completed:
 
 ### Polish
 
-* Sound effects
-* Particle effects
+* Screen shake
+* UI/UX improvements
+* Improved visual effects
 * Power-ups
 
 ### Stretch Goals

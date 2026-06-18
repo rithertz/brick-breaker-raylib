@@ -1,6 +1,5 @@
 #include "ball.hpp"
 #include "raymath.h"
-#include<iostream>
 
 
 Ball::Ball(Vector2 initialPosition, Vector2 intialVelocity) : position(initialPosition), velocity(intialVelocity)
@@ -23,10 +22,6 @@ void Ball::handleCollision()
         position.x = GetScreenWidth() - radius;
         invertXVelocity();
     }
-    // if(position.y + radius > GetScreenHeight()){
-    //     position.y = GetScreenHeight() - radius;
-    //     invertYVelocity();
-    // }
     if(position.y - radius < 0){
         position.y = radius;
         invertYVelocity();
@@ -42,8 +37,6 @@ void Ball::invertYVelocity()
 {
     velocity.y *= -1;
 }
-
-
 
 void Ball::drawBall() const
 {

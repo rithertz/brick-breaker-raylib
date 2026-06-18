@@ -1,17 +1,15 @@
 #include<raylib.h>
 #include "game.hpp"
-#include "brick.hpp"
-
 
 // Global Constants
 const int FPS = 120;
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
 const Color backgroundColor = { 25, 30, 45, 255 };
-// Variable constants
 
 int main(){
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Brick Breaker");
+    InitAudioDevice();
     SetTargetFPS(FPS);
     Game game;
     // Game Loop
@@ -27,5 +25,6 @@ int main(){
         EndDrawing();
     }
     CloseWindow(); 
+    CloseAudioDevice();
     return 0;
 }

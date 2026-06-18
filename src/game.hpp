@@ -3,9 +3,17 @@
 #include "paddle.hpp"
 #include "ball.hpp"
 #include "brick.hpp"
-#include<vector>
+#include <vector>
 
 using namespace std;
+
+struct Particle{
+    Vector2 position;
+    Vector2 velocity;
+    float lifetime;
+    Color color;
+    float size;
+};
 
 enum class GameState
 {
@@ -15,22 +23,28 @@ enum class GameState
 };
 
 class Game{
-    private:        
+    private:
+        int lives, currentLevel, score;
+        bool ballLaunched, levelComplete;//temp test
+
         Paddle paddle;
         Ball ball;
-        int lives;
-        bool ballLaunched;
-        int currentLevel;
-        bool levelComplete;//temp test
-        int score;
         vector<Brick> bricks;
+        vector<Particle> particles;
         GameState currentState;
 
+        Sound paddleHitSound, brickBreakSound, levelCompleteSound, gameOverSound;
+
+
+
         bool checkCollisionWithPaddle();
-        void handleCollisionWithPaddle();
-        float getNormalizedImpactOffset();
-        void handleBrickCollisions();
         bool isLevelComplete() const;
+
+        float getNormalizedImpactOffset();
+
+        void initSounds();
+        void handleCollisionWithPaddle();
+        void handleBrickCollisions();
         void addBrick(int row, int col);
         void loadLevel(int levelNumber);
         void loadLevel1();
@@ -40,9 +54,16 @@ class Game{
         void resetLives();
         void resetScore();
         void resetLevel();
+        void spawnBrickParticles(Rectangle brickBounds, Color brickColor);
+        void updateParticles(float dt);
+        void drawParticles();
+
+        Color getBrickColor(int row);
+
     public:
         Game();
         void handleInput();
         void update();
         void draw();
+        ~Game();
 };
