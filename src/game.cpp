@@ -9,15 +9,15 @@ using namespace std;
 // Game Constants
 const Color SCORE_COLOR = {255, 215, 100, 255};
 const Color LIVES_COLOR = {255, 120, 120, 255};
-// const Color LIVES_COLOR = {247, 94, 94, 255};
 const Color LEVEL_COLOR = {80, 220, 255, 255};
 const Color GAME_OVER_COLOR = {255, 80, 80, 255};
 const Color LEVEL_COMPLETE_COLOR = {120, 255, 140, 255};
 const Color INSTRUCTION_COLOR = {200, 210, 230, 255};
+const Color OVERLAY_COLOR = {8, 15, 25, 220};
 const int MAX_LIVES = 3;
 
 
-Game::Game() : lives(MAX_LIVES), currentLevel(1), score(0),
+Game::Game() : lives(MAX_LIVES), currentLevel(1), score(0), highScore(0), bricksDestroyed(0),
                ballLaunched(false), levelComplete(false),
                screenShakeTime(0.0f), screenShakeStrength(0.0f),
                paddle(Rectangle{580, 660, 150, 25}), ball({640, 630}, {900, 900}),
@@ -59,7 +59,7 @@ bool Game::checkCollisionWithPaddle()
 void Game::handleCollisionWithPaddle()
 {   
     PlaySound(paddleHitSound);
-    startScreenShake(0.02f, 1.0f);
+    startScreenShake(0.06f, 1.5f);
     ball.handlePaddleCollision(paddle.getBounds().y, getNormalizedImpactOffset());    
 }
 
@@ -114,7 +114,9 @@ void Game::handleBrickCollisions()
             startScreenShake(0.08f, 4.0f);
 
             brick.destroy();
+            bricksDestroyed++;
             score += 100;
+            updateHighScore();
             break;
         }
     }
@@ -229,6 +231,11 @@ void Game::resetLevel()
     loadLevel(currentLevel);
 }
 
+void Game::resetBricksDestroyed()
+{
+    bricksDestroyed = 0;
+}
+
 void Game::spawnBrickParticles(Rectangle brickBounds, Color brickColor)
 {
     // Creates a small burst of particles at the center of a destroyed brick.
@@ -294,6 +301,13 @@ void Game::initializeCamera()
     camera.zoom = 1.0f;
 }
 
+void Game::drawOverlay(Color color)
+{
+    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), color);
+}
+
+
+
 Color Game::getBrickColor(int row)
 {
     switch(row){
@@ -319,6 +333,7 @@ void Game::restartGame()
     resetLives();
     resetScore();
     resetLevel();
+    resetBricksDestroyed();
 
     paddle.reset();
 
@@ -328,35 +343,97 @@ void Game::restartGame()
 
     currentState = GameState::PLAYING;
 }
-void Game::handleInput()
-{   
-    if(currentState == GameState::GAME_OVER){
-        if(IsKeyPressed(KEY_ENTER)){
-            restartGame();
+
+void Game::handlePauseInput()
+{
+    // Toggle between PLAYING and PAUSED states
+    if(IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_P)){
+        if(currentState == GameState::PLAYING){
+            currentState = GameState::PAUSED;
         }
-        return;
+        else if(currentState == GameState::PAUSED){
+            currentState = GameState::PLAYING;
+        }
     }
-    if(currentState == GameState::LEVEL_COMPLETE){
+}
+
+void Game::handleRestartInput()
+{
+    // Allow restarting after winning or losing
+    if(currentState == GameState::GAME_OVER || currentState == GameState::LEVEL_COMPLETE){
         if(IsKeyPressed(KEY_ENTER)){
             restartGame();
         }
+    }
+}
+
+void Game::handlePaddleInput(float deltaTime)
+{
+    // Move paddle left
+    if(IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)){
+        paddle.moveLeft(deltaTime);
+    }
+
+    // Move paddle right
+    if(IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)){
+        paddle.moveRight(deltaTime);
+    }
+}
+
+void Game::handleBallLaunchInput()
+{
+    // Launch ball from paddle
+    if(!ballLaunched && (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))){
+        float paddleCenterX = paddle.getBounds().x + paddle.getBounds().width / 2.0f;
+        ball.launch(paddleCenterX);
+        ballLaunched = true;
+    }
+}
+
+void Game::updateHighScore()
+{
+    if(score > highScore){
+        highScore = score;
+    }
+}
+
+void Game::drawCenteredText(const char* text, int y, int fontSize, Color color)
+{
+    int textWidth = MeasureText(text, fontSize);
+    DrawText(text, GetScreenWidth()/2 - textWidth/2, y, fontSize, color);
+}
+
+void Game::drawEndScreen(const char* title, Color titleColor, const char* instruction)
+{
+    drawOverlay(Fade(OVERLAY_COLOR, 0.90f));
+    drawCenteredText(title, 250, 50, titleColor);
+    drawCenteredText(TextFormat("Final Score: %d", score), 330, 30, SCORE_COLOR);
+    drawCenteredText(TextFormat("High Score: %d", highScore), 370, 30, SCORE_COLOR);
+    drawCenteredText(TextFormat("Bricks Destroyed: %d", bricksDestroyed), 410, 30, LEVEL_COLOR);
+    drawCenteredText(instruction, 470, 25, INSTRUCTION_COLOR);
+}
+
+void Game::drawHUDText(const char* text, int centerX, Color color)
+{
+    int width = MeasureText(text, 30);
+    DrawText(text, centerX - width / 2, 15, 30, color);
+}
+
+void Game::handleInput()
+{
+    handlePauseInput();
+    handleRestartInput();
+
+    if(currentState != GameState::PLAYING){
         return;
     }
 
     float deltaTime = GetFrameTime();
 
-    if(IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)){
-        paddle.moveLeft(deltaTime);
-    }
-    if(IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)){
-        paddle.moveRight(deltaTime);
-    }
-    if(!ballLaunched && (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))){   
-        float paddleCenterX = paddle.getBounds().x + paddle.getBounds().width/2;
-        ball.launch(paddleCenterX);
-        ballLaunched = true;
-    }
-    //for testing
+    handlePaddleInput(deltaTime);
+    handleBallLaunchInput();
+
+    // Debug shortcut
     if(IsKeyPressed(KEY_N)){
         levelComplete = true;
     }
@@ -397,6 +474,7 @@ void Game::update()
         }
         if(isLevelComplete() || levelComplete){
             score += 500;
+            updateHighScore();
             levelComplete = false;
             PlaySound(levelCompleteSound);            
 
@@ -443,33 +521,33 @@ void Game::draw()
     EndMode2D();
 
     // Display Game Status
-    // DrawRectangle(0, 0, GetScreenWidth(), 70, Fade(RAYWHITE, 0.05f)); 
-    // DrawText(TextFormat("Lives: %d", lives), 20, 20, 30, LIVES_COLOR);
-    // DrawText(TextFormat("Level: %d", currentLevel), 20, 55, 30, LEVEL_COLOR);
-    // DrawText(TextFormat("Score: %d", score), 20, 90, 30, SCORE_COLOR);
-
     DrawRectangle(0, 0, GetScreenWidth(), 60, Fade(RAYWHITE, 0.05f));
-    DrawText(TextFormat("Lives: %d", lives), 30, 15, 30, LIVES_COLOR);
-    DrawText(TextFormat("Level: %d", currentLevel), GetScreenWidth()/2 - 60, 15, 30, LEVEL_COLOR);
-    DrawText(TextFormat("Score: %d", score), GetScreenWidth() - 220, 15, 30, SCORE_COLOR);
+    drawHUDText(TextFormat("Lives: %d", lives), 160, LIVES_COLOR);
+    drawHUDText(TextFormat("Level: %d", currentLevel), 480, LEVEL_COLOR);
+    drawHUDText(TextFormat("High: %d", highScore), 800, SCORE_COLOR);
+    drawHUDText(TextFormat("Score: %d", score), 1120, SCORE_COLOR);
 
     float textY = paddle.getBounds().y - 75.0f;
     if(!ballLaunched && currentState == GameState::PLAYING){
         DrawText("Press UP to Launch", GetScreenWidth()/2 - 110, textY, 25, INSTRUCTION_COLOR);
     }
 
-    // Draw level complete overlay
+    // Draw level-complete overlay
     if(currentState == GameState::LEVEL_COMPLETE){
-        DrawText("YOU WIN!", GetScreenWidth()/2 - 120, GetScreenHeight()/2 - 50, 50, LEVEL_COMPLETE_COLOR);
-        DrawText("Press ENTER to play again", GetScreenWidth()/2 - 170, GetScreenHeight()/2 + 20, 25, INSTRUCTION_COLOR);
-        DrawText(TextFormat("Final Score: %d", score), GetScreenWidth()/2 - 120, GetScreenHeight()/2 + 60, 25, SCORE_COLOR);
+        drawEndScreen("YOU WIN!", LEVEL_COMPLETE_COLOR, "Press ENTER to play again");
     }
 
-    //Draw game over overlay
+    //Draw game-over overlay
     if(currentState == GameState::GAME_OVER){
-        DrawText("GAME OVER", GetScreenWidth()/2 - 150, GetScreenHeight()/2 - 50, 50, GAME_OVER_COLOR);
-        DrawText("Press ENTER to restart", GetScreenWidth()/2 - 150, GetScreenHeight()/2 + 20, 25, INSTRUCTION_COLOR);
-        DrawText(TextFormat("Final Score: %d", score), GetScreenWidth()/2 - 120, GetScreenHeight()/2 + 60, 25, SCORE_COLOR);
+        drawEndScreen("GAME OVER", GAME_OVER_COLOR, "Press ENTER to restart");
+    }
+
+    //Draw PAUSE overlay
+    if(currentState == GameState::PAUSED){
+        drawOverlay(Fade(OVERLAY_COLOR, 0.75f));
+        // drawOverlay(Fade(BLACK, 0.75f));
+        DrawText("PAUSED", GetScreenWidth()/2 - 100, GetScreenHeight()/2 - 50, 50, RAYWHITE);
+        DrawText("Press P to Resume", GetScreenWidth()/2 - 120, GetScreenHeight()/2 + 20, 25, INSTRUCTION_COLOR);
     }
 }
 

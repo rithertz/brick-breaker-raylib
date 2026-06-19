@@ -128,6 +128,21 @@ Completed:
 * Launch instruction system implemented
 * Improved gameplay feedback and visual polish
 
+### Milestone 9 - UI & UX Overhaul
+
+Completed:
+
+* Pause system implemented
+* Pause overlay implemented
+* Reusable overlay rendering system implemented
+* High score tracking implemented
+* Brick destruction statistics implemented
+* HUD layout redesigned and aligned using a four-column structure
+* Reusable centered-text rendering helper implemented
+* Input handling refactored into dedicated helper functions
+* Improved end-game screen architecture implemented
+* Improved gameplay readability and user experience
+
 ## Screenshots
 
 ### Milestone 1 - Paddle
@@ -148,11 +163,13 @@ Completed:
 ### Milestone 7 - Score & Restart
 ![Milestone 7 Score & Restart](screenshots/milestone-7-score-restart.png)
 
+### Milestone 9 - UI & UX Overhaul
+![Milestone 9 UI & UX](screenshots/milestone-9-uiux.png)
+
 ## Planned Features
 
 ### Core Gameplay
 
-* High score tracking
 * Additional brick types
 * Difficulty balancing
 
@@ -164,11 +181,9 @@ Completed:
 
 ### Polish
 
-* UI/UX overhaul
-* Improved end-game overlays
 * Additional visual effects
 * Power-ups
-
+* Pause menu enhancements
 
 ### Stretch Goals
 

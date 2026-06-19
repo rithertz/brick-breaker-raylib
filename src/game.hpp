@@ -18,13 +18,14 @@ struct Particle{
 enum class GameState
 {
     PLAYING,
+    PAUSED,
     LEVEL_COMPLETE,
     GAME_OVER
 };
 
 class Game{
     private:
-        int lives, currentLevel, score;
+        int lives, currentLevel, score, highScore, bricksDestroyed;
         bool ballLaunched, levelComplete;//temp test
         float screenShakeTime, screenShakeStrength;
 
@@ -57,11 +58,21 @@ class Game{
         void resetLives();
         void resetScore();
         void resetLevel();
+        void resetBricksDestroyed();
         void spawnBrickParticles(Rectangle brickBounds, Color brickColor);
         void updateParticles(float dt);
         void drawParticles();
         void startScreenShake(float duration, float strength);
         void initializeCamera();
+        void drawOverlay(Color color);
+        void handlePauseInput();
+        void handleRestartInput();
+        void handlePaddleInput(float dt);
+        void handleBallLaunchInput();
+        void updateHighScore();
+        void drawCenteredText(const char* text, int y, int fontSize, Color color);
+        void drawEndScreen(const char* title, Color titleColor, const char* instruction);
+        void drawHUDText(const char* text, int centerX, Color color);
 
         Color getBrickColor(int row);
 

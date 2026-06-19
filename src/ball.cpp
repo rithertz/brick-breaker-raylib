@@ -42,6 +42,7 @@ void Ball::drawBall() const
 {
     DrawCircleV(position, radius, ballColor);
     DrawCircleV({position.x - radius/4, position.y - radius/4}, radius/5, Fade(RAYWHITE, 0.5f)); // Small Highlight
+    DrawCircleLines(int(position.x), int(position.y), radius, Fade(RAYWHITE, 0.25f));
 }
 
 void Ball::update(float dt)
