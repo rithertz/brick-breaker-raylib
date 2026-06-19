@@ -122,6 +122,10 @@ Completed:
   - Game over
 * Particle system for brick destruction implemented
 * Particle lifetime management with brick-colored particle bursts implemented
+* Screen shake system implemented for gameplay feedback
+* HUD redesign implemented
+* Horizontal score/lives/level display implemented
+* Launch instruction system implemented
 * Improved gameplay feedback and visual polish
 
 ## Screenshots
@@ -160,10 +164,11 @@ Completed:
 
 ### Polish
 
-* Screen shake
-* UI/UX improvements
-* Improved visual effects
+* UI/UX overhaul
+* Improved end-game overlays
+* Additional visual effects
 * Power-ups
+
 
 ### Stretch Goals
 

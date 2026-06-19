@@ -9,6 +9,7 @@ using namespace std;
 // Game Constants
 const Color SCORE_COLOR = {255, 215, 100, 255};
 const Color LIVES_COLOR = {255, 120, 120, 255};
+// const Color LIVES_COLOR = {247, 94, 94, 255};
 const Color LEVEL_COLOR = {80, 220, 255, 255};
 const Color GAME_OVER_COLOR = {255, 80, 80, 255};
 const Color LEVEL_COMPLETE_COLOR = {120, 255, 140, 255};
@@ -18,10 +19,12 @@ const int MAX_LIVES = 3;
 
 Game::Game() : lives(MAX_LIVES), currentLevel(1), score(0),
                ballLaunched(false), levelComplete(false),
+               screenShakeTime(0.0f), screenShakeStrength(0.0f),
                paddle(Rectangle{580, 660, 150, 25}), ball({640, 630}, {900, 900}),
                currentState(GameState::PLAYING)
 {   
     initSounds();
+    initializeCamera();
     loadLevel(1);    
 }
 
@@ -56,6 +59,7 @@ bool Game::checkCollisionWithPaddle()
 void Game::handleCollisionWithPaddle()
 {   
     PlaySound(paddleHitSound);
+    startScreenShake(0.02f, 1.0f);
     ball.handlePaddleCollision(paddle.getBounds().y, getNormalizedImpactOffset());    
 }
 
@@ -107,6 +111,8 @@ void Game::handleBrickCollisions()
             spawnBrickParticles(brick.getBounds(), brick.getColor());
 
             PlaySound(brickBreakSound);
+            startScreenShake(0.08f, 4.0f);
+
             brick.destroy();
             score += 100;
             break;
@@ -136,7 +142,7 @@ void Game::addBrick(int row, int col)
     float totalWidth = columns * brickWidth + (columns - 1) * horizontalGap;
     
     float startX = (GetScreenWidth() - totalWidth) / 2.0f;
-    const float startY = 120;
+    const float startY = 140;
 
     float x = startX + col * (brickWidth + horizontalGap);
     float y = startY + row * (brickHeight + verticalGap);
@@ -274,6 +280,20 @@ void Game::drawParticles()
     }
 }
 
+void Game::startScreenShake(float duration, float strength)
+{
+    screenShakeTime = duration;
+    screenShakeStrength = strength;
+}
+
+void Game::initializeCamera()
+{
+    camera.offset = {0, 0};
+    camera.target = {0, 0};
+    camera.rotation = 0.0f;
+    camera.zoom = 1.0f;
+}
+
 Color Game::getBrickColor(int row)
 {
     switch(row){
@@ -352,7 +372,7 @@ void Game::update()
         else{
             float paddleCenterX = paddle.getBounds().x + paddle.getBounds().width / 2.0f;
             float paddleTopY = paddle.getBounds().y;
-            ball.setPosition({paddleCenterX, paddleTopY - ball.getRadius()});
+            ball.setPosition({paddleCenterX, paddleTopY - ball.getRadius() - 2.0f});
         }
 
         if(checkCollisionWithPaddle()){
@@ -384,6 +404,7 @@ void Game::update()
                 // Increase level counter, load next level, reset entities 
                 currentLevel++;
                 loadLevel(currentLevel);
+
                 ball.increaseLaunchSpeed(30.0f);
                 resetLives();
                 paddle.reset();
@@ -394,12 +415,22 @@ void Game::update()
                 currentState = GameState::LEVEL_COMPLETE;
             }
         }
+        if(screenShakeTime > 0){
+            screenShakeTime -= deltaTime;
+            camera.offset.x = float((rand() % int(screenShakeStrength * 2 + 1)) - screenShakeStrength);
+            camera.offset.y = float((rand() % int(screenShakeStrength * 2 + 1)) - screenShakeStrength);
+        }
+        else{
+            camera.offset = {0, 0};
+        }
         updateParticles(deltaTime);
     }
 }
 
 void Game::draw()
 {   
+    BeginMode2D(camera);
+
     // Render entities
     paddle.drawPaddle();
     ball.drawBall();
@@ -409,17 +440,32 @@ void Game::draw()
 
     drawParticles();
 
-    // Display Game Status 
-    DrawText(TextFormat("Lives: %d", lives), 20, 20, 30, LIVES_COLOR);
-    DrawText(TextFormat("Level: %d", currentLevel), 20, 55, 30, LEVEL_COLOR);
-    DrawText(TextFormat("Score: %d", score), 20, 90, 30, SCORE_COLOR);
+    EndMode2D();
 
-    // Draw game over or level complete overlays
+    // Display Game Status
+    // DrawRectangle(0, 0, GetScreenWidth(), 70, Fade(RAYWHITE, 0.05f)); 
+    // DrawText(TextFormat("Lives: %d", lives), 20, 20, 30, LIVES_COLOR);
+    // DrawText(TextFormat("Level: %d", currentLevel), 20, 55, 30, LEVEL_COLOR);
+    // DrawText(TextFormat("Score: %d", score), 20, 90, 30, SCORE_COLOR);
+
+    DrawRectangle(0, 0, GetScreenWidth(), 60, Fade(RAYWHITE, 0.05f));
+    DrawText(TextFormat("Lives: %d", lives), 30, 15, 30, LIVES_COLOR);
+    DrawText(TextFormat("Level: %d", currentLevel), GetScreenWidth()/2 - 60, 15, 30, LEVEL_COLOR);
+    DrawText(TextFormat("Score: %d", score), GetScreenWidth() - 220, 15, 30, SCORE_COLOR);
+
+    float textY = paddle.getBounds().y - 75.0f;
+    if(!ballLaunched && currentState == GameState::PLAYING){
+        DrawText("Press UP to Launch", GetScreenWidth()/2 - 110, textY, 25, INSTRUCTION_COLOR);
+    }
+
+    // Draw level complete overlay
     if(currentState == GameState::LEVEL_COMPLETE){
         DrawText("YOU WIN!", GetScreenWidth()/2 - 120, GetScreenHeight()/2 - 50, 50, LEVEL_COMPLETE_COLOR);
         DrawText("Press ENTER to play again", GetScreenWidth()/2 - 170, GetScreenHeight()/2 + 20, 25, INSTRUCTION_COLOR);
         DrawText(TextFormat("Final Score: %d", score), GetScreenWidth()/2 - 120, GetScreenHeight()/2 + 60, 25, SCORE_COLOR);
     }
+
+    //Draw game over overlay
     if(currentState == GameState::GAME_OVER){
         DrawText("GAME OVER", GetScreenWidth()/2 - 150, GetScreenHeight()/2 - 50, 50, GAME_OVER_COLOR);
         DrawText("Press ENTER to restart", GetScreenWidth()/2 - 150, GetScreenHeight()/2 + 20, 25, INSTRUCTION_COLOR);

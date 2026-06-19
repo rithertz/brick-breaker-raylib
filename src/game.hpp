@@ -26,6 +26,7 @@ class Game{
     private:
         int lives, currentLevel, score;
         bool ballLaunched, levelComplete;//temp test
+        float screenShakeTime, screenShakeStrength;
 
         Paddle paddle;
         Ball ball;
@@ -35,12 +36,14 @@ class Game{
 
         Sound paddleHitSound, brickBreakSound, levelCompleteSound, gameOverSound;
 
+        Camera2D camera;
 
 
         bool checkCollisionWithPaddle();
         bool isLevelComplete() const;
 
         float getNormalizedImpactOffset();
+    
 
         void initSounds();
         void handleCollisionWithPaddle();
@@ -57,6 +60,8 @@ class Game{
         void spawnBrickParticles(Rectangle brickBounds, Color brickColor);
         void updateParticles(float dt);
         void drawParticles();
+        void startScreenShake(float duration, float strength);
+        void initializeCamera();
 
         Color getBrickColor(int row);
 
