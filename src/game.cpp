@@ -340,6 +340,11 @@ void Game::restartGame()
     ball.resetLaunchSpeed();
     ball.reset();
     ballLaunched = false;
+    
+    particles.clear();
+
+    camera.offset = {0, 0};
+    screenShakeTime = 0.0f;
 
     currentState = GameState::PLAYING;
 }
@@ -417,6 +422,13 @@ void Game::drawHUDText(const char* text, int centerX, Color color)
 {
     int width = MeasureText(text, 30);
     DrawText(text, centerX - width / 2, 15, 30, color);
+}
+
+void Game::drawPauseScreen()
+{
+    drawOverlay(Fade(OVERLAY_COLOR, 0.75f));
+    drawCenteredText("PAUSED", 280, 50, RAYWHITE);
+    drawCenteredText("Press P to Resume", 360, 25, INSTRUCTION_COLOR);
 }
 
 void Game::handleInput()
@@ -524,8 +536,9 @@ void Game::draw()
     DrawRectangle(0, 0, GetScreenWidth(), 60, Fade(RAYWHITE, 0.05f));
     drawHUDText(TextFormat("Lives: %d", lives), 160, LIVES_COLOR);
     drawHUDText(TextFormat("Level: %d", currentLevel), 480, LEVEL_COLOR);
-    drawHUDText(TextFormat("High: %d", highScore), 800, SCORE_COLOR);
+    drawHUDText(TextFormat("Best: %d", highScore), 800, SCORE_COLOR);
     drawHUDText(TextFormat("Score: %d", score), 1120, SCORE_COLOR);
+    DrawText("P - Pause", GetScreenWidth() - 140, GetScreenHeight() - 30, 20, Fade(INSTRUCTION_COLOR, 0.6f));
 
     float textY = paddle.getBounds().y - 75.0f;
     if(!ballLaunched && currentState == GameState::PLAYING){
@@ -544,10 +557,7 @@ void Game::draw()
 
     //Draw PAUSE overlay
     if(currentState == GameState::PAUSED){
-        drawOverlay(Fade(OVERLAY_COLOR, 0.75f));
-        // drawOverlay(Fade(BLACK, 0.75f));
-        DrawText("PAUSED", GetScreenWidth()/2 - 100, GetScreenHeight()/2 - 50, 50, RAYWHITE);
-        DrawText("Press P to Resume", GetScreenWidth()/2 - 120, GetScreenHeight()/2 + 20, 25, INSTRUCTION_COLOR);
+        drawPauseScreen();
     }
 }
 

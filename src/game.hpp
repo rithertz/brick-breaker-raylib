@@ -73,6 +73,7 @@ class Game{
         void drawCenteredText(const char* text, int y, int fontSize, Color color);
         void drawEndScreen(const char* title, Color titleColor, const char* instruction);
         void drawHUDText(const char* text, int centerX, Color color);
+        void drawPauseScreen();
 
         Color getBrickColor(int row);
 

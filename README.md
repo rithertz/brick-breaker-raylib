@@ -132,16 +132,14 @@ Completed:
 
 Completed:
 
-* Pause system implemented
-* Pause overlay implemented
-* Reusable overlay rendering system implemented
+* Pause system and pause overlay implemented
 * High score tracking implemented
 * Brick destruction statistics implemented
 * HUD layout redesigned and aligned using a four-column structure
-* Reusable centered-text rendering helper implemented
+* Reusable overlay, centered-text & end-screen rendering systems implemented
 * Input handling refactored into dedicated helper functions
-* Improved end-game screen architecture implemented
-* Improved gameplay readability and user experience
+* Improved game over and victory screens
+* Improved gameplay readability and user experience achieved
 
 ## Screenshots
 
@@ -170,26 +168,35 @@ Completed:
 
 ### Core Gameplay
 
+* Multi-hit bricks
 * Additional brick types
 * Difficulty balancing
 
 ### Game Systems
 
-* High score tracking
+* Persistent high score saving
 * Save/load support
 * Settings menu
 
 ### Polish
 
 * Additional visual effects
-* Power-ups
 * Pause menu enhancements
+* Visual theme improvements
 
 ### Stretch Goals
 
 * Level editor
 * Additional power-up types
 * Level loading from files
+* Power-ups
+
+## Project Statistics
+
+* ~1,200+ lines of C++ code
+* 9 completed milestones
+* 3 playable levels
+* Multiple gameplay and UI systems
 
 ## Repository Structure
 
