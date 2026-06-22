@@ -16,4 +16,5 @@ build/
 .DS_Store
 
 # Text files
-*.txt
+Project Plan.txt
+loc.txt

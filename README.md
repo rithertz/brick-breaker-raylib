@@ -216,7 +216,7 @@ Completed:
 
 ## Project Statistics
 
-* ~1,600+ lines of C++ code
+* ~1,100+ lines of C++ code
 * 10 completed milestones
 * 3 playable levels
 * Multiple gameplay, UI and feedback systems
