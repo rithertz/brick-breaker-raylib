@@ -151,7 +151,14 @@ Completed:
 * Two-hit destruction mechanic implemented
 * Strong brick visual state implemented
 * Strong brick placement integrated into all levels
+* Armor-break feedback system implemented
+  - Armor-break sound effect
+  - Armor-break particle effects
+  - Damage-based screen shake
 * Bonus scoring for damaging strong bricks implemented
+* Strong brick destruction statistics implemented
+* Persistent high score saving implemented
+* Victory sound implemented
 * Level difficulty progression improved through brick variety
 
 ## Screenshots
@@ -190,7 +197,6 @@ Completed:
 
 ### Game Systems
 
-* Persistent high score saving
 * Save/load support
 * Settings menu
 
@@ -210,7 +216,7 @@ Completed:
 
 ## Project Statistics
 
-* ~1,400+ lines of C++ code
+* ~1,600+ lines of C++ code
 * 10 completed milestones
 * 3 playable levels
 * Multiple gameplay, UI and feedback systems
@@ -218,14 +224,41 @@ Completed:
 ## Repository Structure
 
 ```text
-src/
-    ├── main.cpp
-    ├── game.hpp
-    ├── game.cpp
-    ├── paddle.hpp
-    ├── paddle.cpp
-    ├── ball.hpp
-    ├── ball.cpp
-    ├── brick.hpp
-    └── brick.cpp 
+Brick Breaker/
+│
+├── assets/
+│   └── sounds/
+│       ├── paddle_hit.wav
+│       ├── brick_break.wav
+│       ├── armor_break.wav
+│       ├── level_complete.wav
+│       ├── victory_sound.wav
+│       └── game_over.wav
+│
+├── data/
+│   └── highscore.txt
+│
+├── screenshots/
+│   ├── milestone-1-paddle.png
+│   ├── milestone-2-ball.png
+│   ├── milestone-4-bricks.png
+│   ├── milestone-5-gameOver.png
+│   ├── milestone-7-score-restart.png
+│   ├── milestone-9-uiux.png
+│   └── milestone-10-strong-brick.png
+│
+├── src/
+│   ├── main.cpp
+│   ├── game.hpp
+│   ├── game.cpp
+│   ├── paddle.hpp
+│   ├── paddle.cpp
+│   ├── ball.hpp
+│   ├── ball.cpp
+│   ├── brick.hpp
+│   └── brick.cpp
+│
+├── README.md
+└── Makefile
 ```
+

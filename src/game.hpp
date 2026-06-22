@@ -25,7 +25,7 @@ enum class GameState
 
 class Game{
     private:
-        int lives, currentLevel, score, highScore, bricksDestroyed;
+        int lives, currentLevel, score, highScore, bricksDestroyed, strongBricksDestroyed;
         bool ballLaunched, levelComplete;
         float screenShakeTime, screenShakeStrength;
 
@@ -35,7 +35,7 @@ class Game{
         vector<Particle> particles;
         GameState currentState;
 
-        Sound paddleHitSound, brickBreakSound, levelCompleteSound, gameOverSound;
+        Sound paddleHitSound, brickBreakSound, levelCompleteSound, gameOverSound, armorBreakSound, victorySound;
 
         Camera2D camera;
 
@@ -63,6 +63,7 @@ class Game{
         void resetLevel();
         void resetBricksDestroyed();
         void spawnBrickParticles(Rectangle brickBounds, Color brickColor);
+        void spawnArmorBreakParticles(Rectangle bounds, Color color);
         void updateParticles(float dt);
         void drawParticles();
         void startScreenShake(float duration, float strength);
@@ -77,6 +78,8 @@ class Game{
         void drawEndScreen(const char* title, Color titleColor, const char* instruction);
         void drawHUDText(const char* text, int centerX, Color color);
         void drawPauseScreen();
+        void loadHighScore();
+        void saveHighScore() const;
 
         Color getBrickColor(int row);
 

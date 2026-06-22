@@ -3,6 +3,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <algorithm>
+#include <string>
+#include <fstream>
 
 using namespace std;
 
@@ -17,7 +19,7 @@ const Color OVERLAY_COLOR = {8, 15, 25, 220};
 const int MAX_LIVES = 3;
 
 
-Game::Game() : lives(MAX_LIVES), currentLevel(1), score(0), highScore(0), bricksDestroyed(0),
+Game::Game() : lives(MAX_LIVES), currentLevel(1), score(0), highScore(0), bricksDestroyed(0), strongBricksDestroyed(0),
                ballLaunched(false), levelComplete(false),
                screenShakeTime(0.0f), screenShakeStrength(0.0f),
                paddle(Rectangle{580, 660, 150, 25}), ball({640, 630}, {900, 900}),
@@ -25,7 +27,8 @@ Game::Game() : lives(MAX_LIVES), currentLevel(1), score(0), highScore(0), bricks
 {   
     initSounds();
     initializeCamera();
-    loadLevel(1);    
+    loadHighScore();
+    loadLevel(1);
 }
 
 void Game::initSounds()
@@ -35,12 +38,17 @@ void Game::initSounds()
     brickBreakSound = LoadSound("assets/sounds/brick_break.wav");
     levelCompleteSound = LoadSound("assets/sounds/level_complete.wav"); 
     gameOverSound = LoadSound("assets/sounds/game_over.wav");
+    armorBreakSound = LoadSound("assets/sounds/armor_break.wav");
+    victorySound = LoadSound("assets/sounds/victory_sound.wav");
+    
 
     // Adjust Volume
     SetSoundVolume(brickBreakSound, 0.5f);
     SetSoundVolume(paddleHitSound, 0.7f);
     SetSoundVolume(levelCompleteSound, 1.0f);
     SetSoundVolume(gameOverSound, 1.0f);
+    SetSoundVolume(armorBreakSound, 0.7f);
+    SetSoundVolume(victorySound, 0.7f);
 }
 
 
@@ -108,18 +116,18 @@ void Game::handleBrickCollisions()
                 ball.invertYVelocity();
             }
 
-            // spawnBrickParticles(brick.getBounds(), brick.getColor());
-
-            // PlaySound(brickBreakSound);
-            // startScreenShake(0.08f, 4.0f);
-
             brick.takeDamage();
             if(brick.getType() == BrickType::STRONG && brick.isAlive()){
                 score += 50;
+                PlaySound(armorBreakSound);
+                spawnArmorBreakParticles(brick.getBounds(), brick.getColor());
                 startScreenShake(0.04f, 2.0f);
             }
             if(!brick.isAlive()){
                 bricksDestroyed++;
+                if(brick.getType() == BrickType::STRONG){
+                    strongBricksDestroyed++;
+                }
                 score += 100;
 
                 spawnBrickParticles(brick.getBounds(), brick.getColor());
@@ -269,6 +277,7 @@ void Game::resetLevel()
 void Game::resetBricksDestroyed()
 {
     bricksDestroyed = 0;
+    strongBricksDestroyed = 0;
 }
 
 void Game::spawnBrickParticles(Rectangle brickBounds, Color brickColor)
@@ -288,6 +297,28 @@ void Game::spawnBrickParticles(Rectangle brickBounds, Color brickColor)
         particle.lifetime = 0.5f;
         particle.color = Fade(brickColor, 0.8f);
         particle.size = float((rand() % 3) + 2);
+
+        particles.push_back(particle);
+    }
+}
+
+void Game::spawnArmorBreakParticles(Rectangle brickBounds, Color brickColor)
+{
+    // Creates a small burst of particles at the center of a destroyed brick.
+    // Each particle receives a random velocity so that the explosion spreads outward in different directions.
+    Vector2 center = {brickBounds.x + brickBounds.width / 2.0f, brickBounds.y + brickBounds.height / 2.0f};
+
+    for(int i = 0; i < 4; i++){
+        Particle particle;
+
+        // Spawn particle at the brick center
+        particle.position = center;
+
+        // Random velocity
+        particle.velocity = {float((rand() % 201) - 100), float((rand() % 201) - 100)}; // Range: [-100, 100] pixels per second
+        particle.lifetime = 0.3f;
+        particle.color = Fade(RAYWHITE, 0.8f);
+        particle.size = 2.0f;
 
         particles.push_back(particle);
     }
@@ -434,6 +465,7 @@ void Game::updateHighScore()
 {
     if(score > highScore){
         highScore = score;
+        saveHighScore();
     }
 }
 
@@ -450,7 +482,8 @@ void Game::drawEndScreen(const char* title, Color titleColor, const char* instru
     drawCenteredText(TextFormat("Final Score: %d", score), 330, 30, SCORE_COLOR);
     drawCenteredText(TextFormat("High Score: %d", highScore), 370, 30, SCORE_COLOR);
     drawCenteredText(TextFormat("Bricks Destroyed: %d", bricksDestroyed), 410, 30, LEVEL_COLOR);
-    drawCenteredText(instruction, 470, 25, INSTRUCTION_COLOR);
+    drawCenteredText(TextFormat("Strong bricks Destroyed: %d", strongBricksDestroyed), 450, 30, LEVEL_COLOR);
+    drawCenteredText(instruction, 510, 25, INSTRUCTION_COLOR);
 }
 
 void Game::drawHUDText(const char* text, int centerX, Color color)
@@ -464,6 +497,26 @@ void Game::drawPauseScreen()
     drawOverlay(Fade(OVERLAY_COLOR, 0.75f));
     drawCenteredText("PAUSED", 280, 50, RAYWHITE);
     drawCenteredText("Press P to Resume", 360, 25, INSTRUCTION_COLOR);
+}
+
+void Game::loadHighScore()
+{
+    ifstream file("data/highscore.txt");
+
+    if(file.is_open()){
+        file >> highScore;
+        file.close();
+    }
+}
+
+void Game::saveHighScore() const
+{
+    ofstream file("data/highscore.txt");
+
+    if(file.is_open()){
+        file << highScore;
+        file.close();
+    }
 }
 
 void Game::handleInput()
@@ -523,7 +576,9 @@ void Game::update()
             score += 500;
             updateHighScore();
             levelComplete = false;
-            PlaySound(levelCompleteSound);            
+            if(currentLevel < 3 && currentLevel >= 1){
+                PlaySound(levelCompleteSound);            
+            }
 
             if(currentLevel < 3){
                 // Increase level counter, load next level, reset entities 
@@ -538,6 +593,7 @@ void Game::update()
             }
             else{
                 currentState = GameState::LEVEL_COMPLETE;
+                PlaySound(victorySound);
             }
         }
         if(screenShakeTime > 0){
@@ -602,4 +658,6 @@ Game::~Game()
     UnloadSound(brickBreakSound);
     UnloadSound(levelCompleteSound);
     UnloadSound(gameOverSound);
+    UnloadSound(armorBreakSound);
+    UnloadSound(victorySound);
 }
