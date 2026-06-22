@@ -141,6 +141,19 @@ Completed:
 * Improved game over and victory screens
 * Improved gameplay readability and user experience achieved
 
+### Milestone 10 - Advanced Brick Types
+
+Completed:
+
+* BrickType architecture implemented
+* Strong brick implementation added
+* Brick durability / health system implemented
+* Two-hit destruction mechanic implemented
+* Strong brick visual state implemented
+* Strong brick placement integrated into all levels
+* Bonus scoring for damaging strong bricks implemented
+* Level difficulty progression improved through brick variety
+
 ## Screenshots
 
 ### Milestone 1 - Paddle
@@ -164,13 +177,16 @@ Completed:
 ### Milestone 9 - UI & UX Overhaul
 ![Milestone 9 UI & UX](screenshots/milestone-9-uiux.png)
 
+### Milestone 10 - Advanced Brick Type - I (strong brick)
+![Milestone 10 Strong brick type](screenshots/milestone-10-strong-brick.png)
+
 ## Planned Features
 
 ### Core Gameplay
 
-* Multi-hit bricks
 * Additional brick types
 * Difficulty balancing
+* Power-up system
 
 ### Game Systems
 
@@ -191,12 +207,13 @@ Completed:
 * Level loading from files
 * Power-ups
 
+
 ## Project Statistics
 
-* ~1,200+ lines of C++ code
-* 9 completed milestones
+* ~1,400+ lines of C++ code
+* 10 completed milestones
 * 3 playable levels
-* Multiple gameplay and UI systems
+* Multiple gameplay, UI and feedback systems
 
 ## Repository Structure
 

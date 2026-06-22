@@ -108,18 +108,38 @@ void Game::handleBrickCollisions()
                 ball.invertYVelocity();
             }
 
-            spawnBrickParticles(brick.getBounds(), brick.getColor());
+            // spawnBrickParticles(brick.getBounds(), brick.getColor());
 
-            PlaySound(brickBreakSound);
-            startScreenShake(0.08f, 4.0f);
+            // PlaySound(brickBreakSound);
+            // startScreenShake(0.08f, 4.0f);
 
-            brick.destroy();
-            bricksDestroyed++;
-            score += 100;
+            brick.takeDamage();
+            if(brick.getType() == BrickType::STRONG && brick.isAlive()){
+                score += 50;
+                startScreenShake(0.04f, 2.0f);
+            }
+            if(!brick.isAlive()){
+                bricksDestroyed++;
+                score += 100;
+
+                spawnBrickParticles(brick.getBounds(), brick.getColor());
+                PlaySound(brickBreakSound);
+                startScreenShake(0.08f, 4.0f);
+            }
             updateHighScore();
             break;
         }
     }
+}
+
+void Game::addNormalBrick(int row, int col)
+{
+    addBrick(row, col, BrickType::NORMAL);
+}
+
+void Game::addStrongBrick(int row, int col)
+{
+    addBrick(row, col, BrickType::STRONG);
 }
 
 bool Game::isLevelComplete() const
@@ -132,7 +152,22 @@ bool Game::isLevelComplete() const
     return true;
 }
 
-void Game::addBrick(int row, int col)
+bool Game::isStrongBrickLevel1(int row, int col) const
+{
+    return (row == 3 && col == 5);
+}
+
+bool Game::isStrongBrickLevel2(int row, int col) const
+{
+    return (row == 2 && col == 3) || (row == 2 && col == 7) || (row == 3 && col == 5);
+}
+
+bool Game::isStrongBrickLevel3(int row, int col) const
+{
+    return ((row == 1 && col == 5) || (row == 2 && col == 4) || (row == 2 && col == 6) || (row == 3 && col == 0) || (row == 3 && col == 10));
+}
+
+void Game::addBrick(int row, int col, BrickType type)
 {
     const int columns = 11;
 
@@ -149,7 +184,7 @@ void Game::addBrick(int row, int col)
     float x = startX + col * (brickWidth + horizontalGap);
     float y = startY + row * (brickHeight + verticalGap);
 
-    bricks.push_back(Brick({x, y, brickWidth, brickHeight}, getBrickColor(row)));
+    bricks.push_back(Brick({x, y, brickWidth, brickHeight}, getBrickColor(row), type));
 }
 
 void Game::loadLevel(int levelNumber)
@@ -175,7 +210,7 @@ void Game::loadLevel1()
 {
     for(int row = 0; row < 4; row++){
         for(int col = 2; col < 9; col++){
-            addBrick(row, col);
+            isStrongBrickLevel1(row, col) ? addStrongBrick(row, col) : addNormalBrick(row, col);
         }
     }
 }
@@ -184,7 +219,7 @@ void Game::loadLevel2()
 {
     for(int row = 0; row < 6; row++){
         for(int col = row; col < 11 - row; col++){
-            addBrick(row, col);
+            isStrongBrickLevel2(row, col) ? addStrongBrick(row, col) : addNormalBrick(row, col);
         }
     }
 }
@@ -193,25 +228,25 @@ void Game::loadLevel3()
 {
     // Top row
     for(int col = 0; col < 3; col++){
-        addBrick(0, col);
+        isStrongBrickLevel3(0, col) ? addStrongBrick(0, col) : addNormalBrick(0, col);
     }
     for(int col = 8; col < 11; col++){
-        addBrick(0, col);
+        isStrongBrickLevel3(0, col) ? addStrongBrick(0, col) : addNormalBrick(0, col);
     }
 
     // Middle rows
     for(int row = 1; row <= 2; row++){
         for(int col = 0; col < 11; col++){
-            addBrick(row, col);
+            isStrongBrickLevel3(row, col) ? addStrongBrick(row, col) : addNormalBrick(row, col);
         }
     }
 
     // Bottom row
     for(int col = 0; col < 3; col++){
-        addBrick(3, col);
+        isStrongBrickLevel3(3, col) ? addStrongBrick(3, col) : addNormalBrick(3, col);
     }
     for(int col = 8; col < 11; col++){
-        addBrick(3, col);
+        isStrongBrickLevel3(3, col) ? addStrongBrick(3, col) : addNormalBrick(3, col);
     }
 }
 

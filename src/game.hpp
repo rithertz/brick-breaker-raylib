@@ -26,7 +26,7 @@ enum class GameState
 class Game{
     private:
         int lives, currentLevel, score, highScore, bricksDestroyed;
-        bool ballLaunched, levelComplete;//temp test
+        bool ballLaunched, levelComplete;
         float screenShakeTime, screenShakeStrength;
 
         Paddle paddle;
@@ -39,17 +39,20 @@ class Game{
 
         Camera2D camera;
 
-
         bool checkCollisionWithPaddle();
         bool isLevelComplete() const;
+        bool isStrongBrickLevel1(int row, int col) const;
+        bool isStrongBrickLevel2(int row, int col) const;
+        bool isStrongBrickLevel3(int row, int col) const;
 
-        float getNormalizedImpactOffset();
-    
+        float getNormalizedImpactOffset();    
 
         void initSounds();
         void handleCollisionWithPaddle();
         void handleBrickCollisions();
-        void addBrick(int row, int col);
+        void addNormalBrick(int row, int col);
+        void addStrongBrick(int row, int col);
+        void addBrick(int row, int col, BrickType type);
         void loadLevel(int levelNumber);
         void loadLevel1();
         void loadLevel2();
