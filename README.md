@@ -161,6 +161,23 @@ Completed:
 * Victory sound implemented
 * Level difficulty progression improved through brick variety
 
+### Milestone 11 - Menu & Game Flow System
+
+Completed:
+
+* Main menu implemented
+* Main menu input handling implemented
+* Game now starts in menu state
+* State-driven game flow architecture implemented
+* Pause menu redesigned
+* Pause statistics display implemented
+* Main menu navigation added to pause screen
+* Main menu navigation added to end screens
+* Persistent high score displayed in menus
+* End screen navigation improved
+* Game state transitions centralized
+* Complete game flow system achieved
+
 ## Screenshots
 
 ### Milestone 1 - Paddle

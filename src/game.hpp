@@ -17,6 +17,7 @@ struct Particle{
 
 enum class GameState
 {
+    MAIN_MENU,
     PLAYING,
     PAUSED,
     LEVEL_COMPLETE,
@@ -80,6 +81,8 @@ class Game{
         void drawPauseScreen();
         void loadHighScore();
         void saveHighScore() const;
+        void handleMainMenuInput();
+        void drawMainMenu();
 
         Color getBrickColor(int row);
 

@@ -23,7 +23,7 @@ Game::Game() : lives(MAX_LIVES), currentLevel(1), score(0), highScore(0), bricks
                ballLaunched(false), levelComplete(false),
                screenShakeTime(0.0f), screenShakeStrength(0.0f),
                paddle(Rectangle{580, 660, 150, 25}), ball({640, 630}, {900, 900}),
-               currentState(GameState::PLAYING)
+               currentState(GameState::MAIN_MENU)
 {   
     initSounds();
     initializeCamera();
@@ -417,7 +417,6 @@ void Game::restartGame()
 
 void Game::handlePauseInput()
 {
-    // Toggle between PLAYING and PAUSED states
     if(IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_P)){
         if(currentState == GameState::PLAYING){
             currentState = GameState::PAUSED;
@@ -425,6 +424,10 @@ void Game::handlePauseInput()
         else if(currentState == GameState::PAUSED){
             currentState = GameState::PLAYING;
         }
+    }
+
+    if(currentState == GameState::PAUSED && IsKeyPressed(KEY_M)){
+        currentState = GameState::MAIN_MENU;
     }
 }
 
@@ -435,6 +438,10 @@ void Game::handleRestartInput()
         if(IsKeyPressed(KEY_ENTER)){
             restartGame();
         }
+    }
+    // Main-menu
+    if(IsKeyPressed(KEY_M)){
+        currentState = GameState::MAIN_MENU;
     }
 }
 
@@ -482,8 +489,9 @@ void Game::drawEndScreen(const char* title, Color titleColor, const char* instru
     drawCenteredText(TextFormat("Final Score: %d", score), 330, 30, SCORE_COLOR);
     drawCenteredText(TextFormat("High Score: %d", highScore), 370, 30, SCORE_COLOR);
     drawCenteredText(TextFormat("Bricks Destroyed: %d", bricksDestroyed), 410, 30, LEVEL_COLOR);
-    drawCenteredText(TextFormat("Strong bricks Destroyed: %d", strongBricksDestroyed), 450, 30, LEVEL_COLOR);
+    drawCenteredText(TextFormat("Strong Bricks Destroyed: %d", strongBricksDestroyed), 450, 30, LEVEL_COLOR);
     drawCenteredText(instruction, 510, 25, INSTRUCTION_COLOR);
+    drawCenteredText("M - Main Menu", 555, 25, INSTRUCTION_COLOR);
 }
 
 void Game::drawHUDText(const char* text, int centerX, Color color)
@@ -492,11 +500,21 @@ void Game::drawHUDText(const char* text, int centerX, Color color)
     DrawText(text, centerX - width / 2, 15, 30, color);
 }
 
+// void Game::drawPauseScreen()
+// {
+//     drawOverlay(Fade(OVERLAY_COLOR, 0.75f));
+//     drawCenteredText("PAUSED", 280, 50, RAYWHITE);
+//     drawCenteredText("Press P to Resume", 360, 25, INSTRUCTION_COLOR);
+// }
+
 void Game::drawPauseScreen()
 {
-    drawOverlay(Fade(OVERLAY_COLOR, 0.75f));
-    drawCenteredText("PAUSED", 280, 50, RAYWHITE);
-    drawCenteredText("Press P to Resume", 360, 25, INSTRUCTION_COLOR);
+    drawOverlay(Fade(OVERLAY_COLOR, 0.95f));
+    drawCenteredText("PAUSED", 250, 55, RAYWHITE);
+    drawCenteredText(TextFormat("Current Score: %d", score), 340, 30, SCORE_COLOR);
+    drawCenteredText(TextFormat("High Score: %d", highScore), 380, 30, LEVEL_COLOR);
+    drawCenteredText("P - Resume", 460, 25, INSTRUCTION_COLOR);
+    drawCenteredText("M - Main Menu", 500, 25, INSTRUCTION_COLOR);
 }
 
 void Game::loadHighScore()
@@ -519,8 +537,28 @@ void Game::saveHighScore() const
     }
 }
 
-void Game::handleInput()
+void Game::handleMainMenuInput()
 {
+    if(IsKeyPressed(KEY_ENTER)){
+        restartGame();
+        currentState = GameState::PLAYING;
+    }
+}
+
+void Game::drawMainMenu()
+{
+    drawCenteredText("BRICK BREAKER", 220, 70, SCORE_COLOR);
+    drawCenteredText("Press ENTER to Play", 350, 30, INSTRUCTION_COLOR);
+    drawCenteredText(TextFormat("High Score: %d", highScore), 420, 30, LEVEL_COLOR);
+}
+
+void Game::handleInput()
+{   
+    if(currentState == GameState::MAIN_MENU){
+        handleMainMenuInput();
+        return;
+    }
+
     handlePauseInput();
     handleRestartInput();
 
@@ -610,8 +648,14 @@ void Game::update()
 
 void Game::draw()
 {   
-    BeginMode2D(camera);
+    // Render Main-Menu
+    if(currentState == GameState::MAIN_MENU){
+        drawMainMenu();
+        return; 
+    }
 
+    BeginMode2D(camera);
+    
     // Render entities
     paddle.drawPaddle();
     ball.drawBall();
@@ -638,12 +682,12 @@ void Game::draw()
 
     // Draw level-complete overlay
     if(currentState == GameState::LEVEL_COMPLETE){
-        drawEndScreen("YOU WIN!", LEVEL_COMPLETE_COLOR, "Press ENTER to play again");
+        drawEndScreen("YOU WIN!", LEVEL_COMPLETE_COLOR, "ENTER - Play again");
     }
 
     //Draw game-over overlay
     if(currentState == GameState::GAME_OVER){
-        drawEndScreen("GAME OVER", GAME_OVER_COLOR, "Press ENTER to restart");
+        drawEndScreen("GAME OVER", GAME_OVER_COLOR, "ENTER - Play again");
     }
 
     //Draw PAUSE overlay
