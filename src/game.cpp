@@ -16,12 +16,13 @@ const Color GAME_OVER_COLOR = {255, 80, 80, 255};
 const Color LEVEL_COMPLETE_COLOR = {120, 255, 140, 255};
 const Color INSTRUCTION_COLOR = {200, 210, 230, 255};
 const Color OVERLAY_COLOR = {8, 15, 25, 220};
+const Color BOOST_COLOR = {170, 220, 255, 255};
 const int MAX_LIVES = 3;
 
 
 Game::Game() : lives(MAX_LIVES), currentLevel(1), score(0), highScore(0), bricksDestroyed(0), strongBricksDestroyed(0),
-               ballLaunched(false), levelComplete(false),
-               screenShakeTime(0.0f), screenShakeStrength(0.0f),
+               ballLaunched(false), levelComplete(false), paddleExpanded(false),
+               screenShakeTime(0.0f), screenShakeStrength(0.0f), paddleExpandTimer(0.0f),
                paddle(Rectangle{580, 660, 150, 25}), ball({640, 630}, {900, 900}),
                currentState(GameState::MAIN_MENU)
 {   
@@ -133,6 +134,12 @@ void Game::handleBrickCollisions()
                 spawnBrickParticles(brick.getBounds(), brick.getColor());
                 PlaySound(brickBreakSound);
                 startScreenShake(0.08f, 4.0f);
+
+                // Spawn power-up with a small random chance (15%)
+                if(rand() % 100 < 15){
+                    Vector2 center = {brick.getBounds().x + brick.getBounds().width / 2, brick.getBounds().y + brick.getBounds().height / 2};
+                    spawnPowerUp(center);
+                }
             }
             updateHighScore();
             break;
@@ -173,6 +180,11 @@ bool Game::isStrongBrickLevel2(int row, int col) const
 bool Game::isStrongBrickLevel3(int row, int col) const
 {
     return ((row == 1 && col == 5) || (row == 2 && col == 4) || (row == 2 && col == 6) || (row == 3 && col == 0) || (row == 3 && col == 10));
+}
+
+bool Game::checkPowerUpCollision(const PowerUp &powerUp) const
+{
+    return CheckCollisionRecs(powerUp.getBounds(), paddle.getBounds());
 }
 
 void Game::addBrick(int row, int col, BrickType type)
@@ -402,12 +414,16 @@ void Game::restartGame()
     resetBricksDestroyed();
 
     paddle.reset();
+    paddle.resetSize();
+    paddleExpanded = false;
+    paddleExpandTimer = 0.0f;
 
     ball.resetLaunchSpeed();
     ball.reset();
     ballLaunched = false;
     
     particles.clear();
+    powerUps.clear();
 
     camera.offset = {0, 0};
     screenShakeTime = 0.0f;
@@ -539,7 +555,7 @@ void Game::saveHighScore() const
 
 void Game::handleMainMenuInput()
 {
-    if(IsKeyPressed(KEY_ENTER)){
+    if(GetKeyPressed()){
         restartGame();
         currentState = GameState::PLAYING;
     }
@@ -548,9 +564,89 @@ void Game::handleMainMenuInput()
 void Game::drawMainMenu()
 {
     drawCenteredText("BRICK BREAKER", 220, 70, SCORE_COLOR);
-    drawCenteredText("Press ENTER to Play", 350, 30, INSTRUCTION_COLOR);
+    drawCenteredText("Press ANY KEY to Play", 350, 30, INSTRUCTION_COLOR);
     drawCenteredText(TextFormat("High Score: %d", highScore), 420, 30, LEVEL_COLOR);
 }
+
+void Game::spawnPowerUp(Vector2 position)
+{   
+    // Create a falling collectible at the destroyed brick's center.
+    Rectangle bounds = {position.x - 20, position.y - 10, 40, 20};
+    // Randomly choose a power-up type.
+    PowerUpType type = (rand() % 2 == 0) ? PowerUpType::EXPAND_PADDLE : PowerUpType::EXTRA_LIFE;
+    if(lives > 4){
+        type = PowerUpType::EXPAND_PADDLE;
+    }
+    powerUps.push_back(PowerUp(bounds, type));
+}
+
+void Game::applyPowerUp(PowerUpType type)
+{   
+    // Apply the collected power-up effect.
+    switch(type){
+        case PowerUpType::EXTRA_LIFE:
+            lives++;
+            break;
+        case PowerUpType::EXPAND_PADDLE:
+            paddle.expand();
+            paddleExpanded = true;
+            paddleExpandTimer += 10.0f;//stack expansion time
+            paddleExpandTimer = min(paddleExpandTimer, 90.0f);// Prevent excessively long durations.
+            break;
+    }
+}
+
+void Game::updateExpandedPaddle(float dt)
+{
+    if(paddleExpanded){
+        paddleExpandTimer -= dt;
+        // Restore the default paddle size when the timer expires.
+        if(paddleExpandTimer <= 0.0f){
+            paddle.resetSize();
+            paddleExpanded = false;
+        }
+    }
+}
+
+void Game::drawPowerUpStatus() const
+{
+    // Draw remaining paddle boost duration.
+    if(!paddleExpanded){
+        return;
+    }
+
+    const char* text = TextFormat("%.1fs", paddleExpandTimer);
+    int width = MeasureText(text, 20);
+    float x = paddle.getBounds().x + paddle.getBounds().width / 2.0f - width / 2.0f;
+    float y = paddle.getBounds().y + paddle.getBounds().height + 15.0f;
+    DrawText(text, x, y, 20, BOOST_COLOR);
+    
+}
+
+void Game::updatePowerUps(float dt)
+{
+    // Update all active power-ups.
+    for(PowerUp& powerUp : powerUps){
+        powerUp.update(dt);
+
+        // Apply effect when collected.
+        if(checkPowerUpCollision(powerUp)){
+            applyPowerUp(powerUp.getType());
+            powerUp.collect();
+        }
+    }
+
+    // Remove collected power-ups.
+    powerUps.erase(
+        remove_if(powerUps.begin(), powerUps.end(), [](const PowerUp& powerUp){
+                return !powerUp.isActive();
+            }
+        ),
+        powerUps.end()
+    );
+}
+
+
 
 void Game::handleInput()
 {   
@@ -643,6 +739,8 @@ void Game::update()
             camera.offset = {0, 0};
         }
         updateParticles(deltaTime);
+        updatePowerUps(deltaTime);
+        updateExpandedPaddle(deltaTime);
     }
 }
 
@@ -662,8 +760,12 @@ void Game::draw()
     for(const Brick& brick : bricks){
         brick.draw();
     }
+    for(const PowerUp& powerUp : powerUps){
+        powerUp.draw();
+    }
 
     drawParticles();
+    drawPowerUpStatus();
 
     EndMode2D();
 

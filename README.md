@@ -7,7 +7,6 @@ A Brick Breaker clone built completely from scratch in C++ using Raylib.
 * C++17
 * Raylib
 * Git
-* GitHub
 
 ## Goals
 
@@ -126,7 +125,7 @@ Completed:
 * HUD redesign implemented
 * Horizontal score/lives/level display implemented
 * Launch instruction system implemented
-* Improved gameplay feedback and visual polish
+* Improved gameplay feedback and visual polish achieved
 
 ### Milestone 9 - UI & UX Overhaul
 
@@ -138,25 +137,21 @@ Completed:
 * HUD layout redesigned and aligned using a four-column structure
 * Reusable overlay, centered-text & end-screen rendering systems implemented
 * Input handling refactored into dedicated helper functions
-* Improved game over and victory screens
-* Improved gameplay readability and user experience achieved
+* Improved game-over and victory screens
+* Improved readability and ux achieved
 
 ### Milestone 10 - Advanced Brick Types
 
 Completed:
 
 * BrickType architecture implemented
-* Strong brick implementation added
-* Brick durability / health system implemented
-* Two-hit destruction mechanic implemented
-* Strong brick visual state implemented
-* Strong brick placement integrated into all levels
+* Strong brick - Two-hit destruction mechanic implemented
+* Strong brick visual state & placement integrated into all levels
 * Armor-break feedback system implemented
   - Armor-break sound effect
   - Armor-break particle effects
   - Damage-based screen shake
 * Bonus scoring for damaging strong bricks implemented
-* Strong brick destruction statistics implemented
 * Persistent high score saving implemented
 * Victory sound implemented
 * Level difficulty progression improved through brick variety
@@ -165,28 +160,35 @@ Completed:
 
 Completed:
 
-* Main menu implemented
-* Main menu input handling implemented
+* Main menu implemented with input handling
 * Game now starts in menu state
 * State-driven game flow architecture implemented
-* Pause menu redesigned
-* Pause statistics display implemented
-* Main menu navigation added to pause screen
-* Main menu navigation added to end screens
+* Pause menu redesigned & pause statistics display implemented
+* Main menu navigation added to pause screen and end screens.
 * Persistent high score displayed in menus
-* End screen navigation improved
 * Game state transitions centralized
 * Complete game flow system achieved
+
+### Milestone 12 - Power-Up System
+
+Completed:
+
+* PowerUp class implemented
+* PowerUpType architecture introduced
+* Falling collectible system implemented
+* Random power-up spawning from destroyed bricks
+* Expand-Paddle power-up implemented
+* Extra Life power-up implemented
+* Temporary timer effect for the exapanded-paddle implemented
+* Power-up status display, collection and cleanup implemented
+* Gameplay variety and reward mechanics significantly improved
 
 ## Screenshots
 
 ### Milestone 1 - Paddle
-
 ![Milestone 1 Paddle](screenshots/milestone-1-paddle.png)
 
 ### Milestone 2 - Ball
-
-
 ![Milestone 2 Ball](screenshots/milestone-2-ball.png)
 
 ### Milestone 4 - Bricks
@@ -208,9 +210,9 @@ Completed:
 
 ### Core Gameplay
 
+* Additional power-up types
 * Additional brick types
 * Difficulty balancing
-* Power-up system
 
 ### Game Systems
 
@@ -233,10 +235,12 @@ Completed:
 
 ## Project Statistics
 
-* ~1,100+ lines of C++ code
-* 10 completed milestones
+* ~1,300+ lines of C++ code
+* 12 completed milestones
+* 5 game states
+* 2 power-up types
+* 2 brick types
 * 3 playable levels
-* Multiple gameplay, UI and feedback systems
 
 ## Repository Structure
 
@@ -273,7 +277,9 @@ Brick Breaker/
 │   ├── ball.hpp
 │   ├── ball.cpp
 │   ├── brick.hpp
-│   └── brick.cpp
+│   ├── brick.cpp
+│   ├── powerup.hpp
+│   └── powerup.cpp
 │
 ├── README.md
 └── Makefile

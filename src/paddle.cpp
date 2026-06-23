@@ -52,3 +52,26 @@ void Paddle::reset()
 {
     bounds.x = (GetScreenWidth() - bounds.width) / 2.0f;
 }
+
+void Paddle::expand()
+{
+    // Preserve paddle center while increasing width.
+    float centerX = bounds.x + bounds.width / 2.0f;
+
+    bounds.width = expandedWidth;
+    bounds.x = centerX - bounds.width / 2.0f;
+}
+
+void Paddle::resetSize()
+{
+    // Restore to default paddle width.
+    float centerX = bounds.x + bounds.width / 2.0f;
+
+    bounds.width = defaultWidth;
+    bounds.x = centerX - bounds.width / 2.0f;
+}
+
+bool Paddle::isExpanded() const
+{
+    return bounds.width == expandedWidth;
+}

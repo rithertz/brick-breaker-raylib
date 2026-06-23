@@ -3,6 +3,7 @@
 #include "paddle.hpp"
 #include "ball.hpp"
 #include "brick.hpp"
+#include "powerup.hpp"
 #include <vector>
 
 using namespace std;
@@ -27,13 +28,14 @@ enum class GameState
 class Game{
     private:
         int lives, currentLevel, score, highScore, bricksDestroyed, strongBricksDestroyed;
-        bool ballLaunched, levelComplete;
-        float screenShakeTime, screenShakeStrength;
+        bool ballLaunched, levelComplete, paddleExpanded;
+        float screenShakeTime, screenShakeStrength, paddleExpandTimer;
 
         Paddle paddle;
         Ball ball;
         vector<Brick> bricks;
         vector<Particle> particles;
+        vector<PowerUp> powerUps;
         GameState currentState;
 
         Sound paddleHitSound, brickBreakSound, levelCompleteSound, gameOverSound, armorBreakSound, victorySound;
@@ -45,6 +47,7 @@ class Game{
         bool isStrongBrickLevel1(int row, int col) const;
         bool isStrongBrickLevel2(int row, int col) const;
         bool isStrongBrickLevel3(int row, int col) const;
+        bool checkPowerUpCollision(const PowerUp& powerUp) const;
 
         float getNormalizedImpactOffset();    
 
@@ -83,6 +86,11 @@ class Game{
         void saveHighScore() const;
         void handleMainMenuInput();
         void drawMainMenu();
+        void spawnPowerUp(Vector2 position);
+        void updatePowerUps(float dt);
+        void applyPowerUp(PowerUpType type);
+        void updateExpandedPaddle(float dt);
+        void drawPowerUpStatus() const;
 
         Color getBrickColor(int row);
 
