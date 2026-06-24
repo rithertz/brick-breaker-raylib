@@ -4,7 +4,8 @@
 
 enum class PowerUpType{
     EXPAND_PADDLE,
-    EXTRA_LIFE
+    EXTRA_LIFE,
+    OVERDRIVE
 };
 
 class PowerUp{

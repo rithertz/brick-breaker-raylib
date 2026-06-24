@@ -28,8 +28,8 @@ enum class GameState
 class Game{
     private:
         int lives, currentLevel, score, highScore, bricksDestroyed, strongBricksDestroyed;
-        bool ballLaunched, levelComplete, paddleExpanded;
-        float screenShakeTime, screenShakeStrength, paddleExpandTimer;
+        bool ballLaunched, levelComplete, paddleExpanded, overdriveActive;
+        float screenShakeTime, screenShakeStrength, paddleExpandTimer, overdriveTimer;
 
         Paddle paddle;
         Ball ball;
@@ -91,8 +91,14 @@ class Game{
         void applyPowerUp(PowerUpType type);
         void updateExpandedPaddle(float dt);
         void drawPowerUpStatus() const;
+        void updateOverdrive(float dt);
+        void applyExtraLife();
+        void applyExpandPaddle();
+        void applyOverdrive();
 
         Color getBrickColor(int row);
+
+        PowerUpType getRandomPowerUpType() const;
 
     public:
         Game();

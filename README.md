@@ -182,6 +182,9 @@ Completed:
 * Temporary timer effect for the exapanded-paddle implemented
 * Power-up status display, collection and cleanup implemented
 * Gameplay variety and reward mechanics significantly improved
+* Weighted power-up spawning implemented
+* Power-up balancing and spawn restrictions added
+* Overdrive power-up foundation implemented
 
 ## Screenshots
 
@@ -238,7 +241,7 @@ Completed:
 * ~1,300+ lines of C++ code
 * 12 completed milestones
 * 5 game states
-* 2 power-up types
+* 3 power-up types
 * 2 brick types
 * 3 playable levels
 
@@ -284,4 +287,3 @@ Brick Breaker/
 ├── README.md
 └── Makefile
 ```
-

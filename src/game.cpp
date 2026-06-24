@@ -8,7 +8,7 @@
 
 using namespace std;
 
-// Game Constants
+// Color Constants
 const Color SCORE_COLOR = {255, 215, 100, 255};
 const Color LIVES_COLOR = {255, 120, 120, 255};
 const Color LEVEL_COLOR = {80, 220, 255, 255};
@@ -17,12 +17,17 @@ const Color LEVEL_COMPLETE_COLOR = {120, 255, 140, 255};
 const Color INSTRUCTION_COLOR = {200, 210, 230, 255};
 const Color OVERLAY_COLOR = {8, 15, 25, 220};
 const Color BOOST_COLOR = {170, 220, 255, 255};
+
+// Game Constants
 const int MAX_LIVES = 3;
+const float OVERDRIVE_DURATION = 10.0f;
+const float OVERDRIVE_BALL_MULTIPLIER = 1.20f;
+const float OVERDRIVE_PADDLE_MULTIPLIER = 1.50f;
 
 
 Game::Game() : lives(MAX_LIVES), currentLevel(1), score(0), highScore(0), bricksDestroyed(0), strongBricksDestroyed(0),
-               ballLaunched(false), levelComplete(false), paddleExpanded(false),
-               screenShakeTime(0.0f), screenShakeStrength(0.0f), paddleExpandTimer(0.0f),
+               ballLaunched(false), levelComplete(false), paddleExpanded(false), overdriveActive(false),
+               screenShakeTime(0.0f), screenShakeStrength(0.0f), paddleExpandTimer(0.0f), overdriveTimer(0.0f),
                paddle(Rectangle{580, 660, 150, 25}), ball({640, 630}, {900, 900}),
                currentState(GameState::MAIN_MENU)
 {   
@@ -135,8 +140,8 @@ void Game::handleBrickCollisions()
                 PlaySound(brickBreakSound);
                 startScreenShake(0.08f, 4.0f);
 
-                // Spawn power-up with a small random chance (15%)
-                if(rand() % 100 < 15){
+                // Spawn power-up with a small random chance (25%)
+                if(rand() % 100 < 25){
                     Vector2 center = {brick.getBounds().x + brick.getBounds().width / 2, brick.getBounds().y + brick.getBounds().height / 2};
                     spawnPowerUp(center);
                 }
@@ -406,6 +411,29 @@ Color Game::getBrickColor(int row)
     }
 }
 
+PowerUpType Game::getRandomPowerUpType() const
+{
+    // Weighted power-up spawning.
+    int roll = rand() % 100;
+
+    if(overdriveActive){
+        if(roll < 60){
+            return PowerUpType::EXPAND_PADDLE;
+        }
+        return PowerUpType::EXTRA_LIFE;
+    }
+
+    if(roll < 35){
+        return PowerUpType::EXPAND_PADDLE;
+    }
+
+    if(roll < 70){
+        return PowerUpType::EXTRA_LIFE;
+    }
+
+    return PowerUpType::OVERDRIVE;
+}
+
 void Game::restartGame()
 {
     resetLives();
@@ -573,9 +601,10 @@ void Game::spawnPowerUp(Vector2 position)
     // Create a falling collectible at the destroyed brick's center.
     Rectangle bounds = {position.x - 20, position.y - 10, 40, 20};
     // Randomly choose a power-up type.
-    PowerUpType type = (rand() % 2 == 0) ? PowerUpType::EXPAND_PADDLE : PowerUpType::EXTRA_LIFE;
-    if(lives > 4){
-        type = PowerUpType::EXPAND_PADDLE;
+    PowerUpType type = getRandomPowerUpType();
+    // Cap extra life power up at 6
+    while(type == PowerUpType::EXTRA_LIFE && lives >= 6){
+        type = getRandomPowerUpType();
     }
     powerUps.push_back(PowerUp(bounds, type));
 }
@@ -585,13 +614,13 @@ void Game::applyPowerUp(PowerUpType type)
     // Apply the collected power-up effect.
     switch(type){
         case PowerUpType::EXTRA_LIFE:
-            lives++;
+            applyExtraLife();
             break;
         case PowerUpType::EXPAND_PADDLE:
-            paddle.expand();
-            paddleExpanded = true;
-            paddleExpandTimer += 10.0f;//stack expansion time
-            paddleExpandTimer = min(paddleExpandTimer, 90.0f);// Prevent excessively long durations.
+            applyExpandPaddle();
+            break;
+        case PowerUpType::OVERDRIVE:
+            applyOverdrive();
             break;
     }
 }
@@ -621,6 +650,43 @@ void Game::drawPowerUpStatus() const
     float y = paddle.getBounds().y + paddle.getBounds().height + 15.0f;
     DrawText(text, x, y, 20, BOOST_COLOR);
     
+}
+
+void Game::updateOverdrive(float dt)
+{
+    // Update active overdrive effect.
+    if(!overdriveActive){
+        return;
+    }
+
+    overdriveTimer -= dt;
+
+    // reset timer
+    if(overdriveTimer <= 0.0f){
+        overdriveActive = false;
+        overdriveTimer = 0.0f;
+        paddle.deactivateSpeedBoost();
+    }
+}
+
+void Game::applyExtraLife()
+{
+    lives++;
+}
+
+void Game::applyExpandPaddle()
+{
+    paddle.expand();
+    paddleExpanded = true;
+    paddleExpandTimer += 10.0f;//stack expansion time
+    paddleExpandTimer = min(paddleExpandTimer, 90.0f);// Prevent excessively long durations.
+}
+
+void Game::applyOverdrive()
+{
+    overdriveActive = true;
+    overdriveTimer = OVERDRIVE_DURATION;
+    paddle.activateSpeedBoost();
 }
 
 void Game::updatePowerUps(float dt)
@@ -741,6 +807,7 @@ void Game::update()
         updateParticles(deltaTime);
         updatePowerUps(deltaTime);
         updateExpandedPaddle(deltaTime);
+        updateOverdrive(deltaTime);
     }
 }
 
