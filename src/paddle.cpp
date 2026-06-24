@@ -53,9 +53,9 @@ void Paddle::setSpeed(float speed)
     this->speed = speed;
 }
 
-void Paddle::activateSpeedBoost()
+void Paddle::activateSpeedBoost(float boost)
 {
-    speed = boostedSpeed;
+    speed = defaultSpeed * boost;
 }
 
 void Paddle::deactivateSpeedBoost()
@@ -90,9 +90,4 @@ void Paddle::resetSize()
 bool Paddle::isExpanded() const
 {
     return bounds.width == expandedWidth;
-}
-
-bool Paddle::isSpeedBoosted() const
-{
-    return (speed == boostedSpeed);
 }

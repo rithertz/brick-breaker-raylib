@@ -48,6 +48,9 @@ class Game{
         bool isStrongBrickLevel2(int row, int col) const;
         bool isStrongBrickLevel3(int row, int col) const;
         bool checkPowerUpCollision(const PowerUp& powerUp) const;
+        bool hasOverdrivePowerUp() const;
+
+        int getScoreMultiplier() const;
 
         float getNormalizedImpactOffset();    
 
@@ -65,6 +68,7 @@ class Game{
         void resetLives();
         void resetScore();
         void resetLevel();
+        void increaseScore(int score);
         void resetBricksDestroyed();
         void spawnBrickParticles(Rectangle brickBounds, Color brickColor);
         void spawnArmorBreakParticles(Rectangle bounds, Color color);
@@ -95,7 +99,7 @@ class Game{
         void applyExtraLife();
         void applyExpandPaddle();
         void applyOverdrive();
-
+        void displayGameStatus();
         Color getBrickColor(int row);
 
         PowerUpType getRandomPowerUpType() const;

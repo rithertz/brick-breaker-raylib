@@ -17,12 +17,14 @@ const Color LEVEL_COMPLETE_COLOR = {120, 255, 140, 255};
 const Color INSTRUCTION_COLOR = {200, 210, 230, 255};
 const Color OVERLAY_COLOR = {8, 15, 25, 220};
 const Color BOOST_COLOR = {170, 220, 255, 255};
+const Color OVERDRIVE_COLOR = {255, 180, 60, 255};
 
 // Game Constants
 const int MAX_LIVES = 3;
-const float OVERDRIVE_DURATION = 10.0f;
-const float OVERDRIVE_BALL_MULTIPLIER = 1.20f;
+const float OVERDRIVE_DURATION = 15.0f;
+const float OVERDRIVE_BALL_MULTIPLIER = 1.25f;
 const float OVERDRIVE_PADDLE_MULTIPLIER = 1.50f;
+const int OVERDRIVE_SCORE_MULTIPLIER = 2;
 
 
 Game::Game() : lives(MAX_LIVES), currentLevel(1), score(0), highScore(0), bricksDestroyed(0), strongBricksDestroyed(0),
@@ -124,7 +126,7 @@ void Game::handleBrickCollisions()
 
             brick.takeDamage();
             if(brick.getType() == BrickType::STRONG && brick.isAlive()){
-                score += 50;
+                increaseScore(50);
                 PlaySound(armorBreakSound);
                 spawnArmorBreakParticles(brick.getBounds(), brick.getColor());
                 startScreenShake(0.04f, 2.0f);
@@ -134,14 +136,14 @@ void Game::handleBrickCollisions()
                 if(brick.getType() == BrickType::STRONG){
                     strongBricksDestroyed++;
                 }
-                score += 100;
+                increaseScore(100);
 
                 spawnBrickParticles(brick.getBounds(), brick.getColor());
                 PlaySound(brickBreakSound);
                 startScreenShake(0.08f, 4.0f);
 
-                // Spawn power-up with a small random chance (25%)
-                if(rand() % 100 < 25){
+                // Spawn power-up with a small random chance (30%)
+                if(rand() % 100 < 100){
                     Vector2 center = {brick.getBounds().x + brick.getBounds().width / 2, brick.getBounds().y + brick.getBounds().height / 2};
                     spawnPowerUp(center);
                 }
@@ -192,14 +194,29 @@ bool Game::checkPowerUpCollision(const PowerUp &powerUp) const
     return CheckCollisionRecs(powerUp.getBounds(), paddle.getBounds());
 }
 
+bool Game::hasOverdrivePowerUp() const
+{
+    for(const PowerUp& powerUp : powerUps){
+        if(powerUp.isActive() && powerUp.getType() == PowerUpType::OVERDRIVE){
+            return true;
+        }
+    }
+    return false;
+}
+
+int Game::getScoreMultiplier() const
+{
+    return overdriveActive ? 2 : 1;
+}
+
 void Game::addBrick(int row, int col, BrickType type)
 {
     const int columns = 11;
 
-    const float brickWidth = 90;
-    const float brickHeight = 25;
-    const float horizontalGap = 10;
-    const float verticalGap = 10;
+    const float brickWidth = 90.0f;
+    const float brickHeight = 25.0f;
+    const float horizontalGap = 10.0f;
+    const float verticalGap = 10.0f;
 
     float totalWidth = columns * brickWidth + (columns - 1) * horizontalGap;
     
@@ -289,6 +306,11 @@ void Game::resetLevel()
 {
     currentLevel = 1;
     loadLevel(currentLevel);
+}
+
+void Game::increaseScore(int score)
+{
+    this->score += score * getScoreMultiplier();
 }
 
 void Game::resetBricksDestroyed()
@@ -416,7 +438,7 @@ PowerUpType Game::getRandomPowerUpType() const
     // Weighted power-up spawning.
     int roll = rand() % 100;
 
-    if(overdriveActive){
+    if(overdriveActive || hasOverdrivePowerUp()){
         if(roll < 60){
             return PowerUpType::EXPAND_PADDLE;
         }
@@ -665,7 +687,9 @@ void Game::updateOverdrive(float dt)
     if(overdriveTimer <= 0.0f){
         overdriveActive = false;
         overdriveTimer = 0.0f;
+
         paddle.deactivateSpeedBoost();
+        ball.deactivateSpeedBoost();
     }
 }
 
@@ -686,8 +710,11 @@ void Game::applyOverdrive()
 {
     overdriveActive = true;
     overdriveTimer = OVERDRIVE_DURATION;
-    paddle.activateSpeedBoost();
+
+    paddle.activateSpeedBoost(OVERDRIVE_PADDLE_MULTIPLIER);
+    ball.activateSpeedBoost(OVERDRIVE_BALL_MULTIPLIER);
 }
+
 
 void Game::updatePowerUps(float dt)
 {
@@ -769,11 +796,14 @@ void Game::update()
             else{
                 ball.reset();
                 paddle.reset();
+                // if(overdriveActive){
+                //     ball.activateSpeedBoost(OVERDRIVE_BALL_MULTIPLIER);
+                // }
                 ballLaunched = false;
             }
         }
         if(isLevelComplete() || levelComplete){
-            score += 500;
+            increaseScore(500);
             updateHighScore();
             levelComplete = false;
             if(currentLevel < 3 && currentLevel >= 1){
@@ -811,6 +841,21 @@ void Game::update()
     }
 }
 
+void Game::displayGameStatus()
+{
+    DrawRectangle(0, 0, GetScreenWidth(), 60, Fade(RAYWHITE, 0.05f));
+    drawHUDText(TextFormat("Lives: %d", lives), 160, LIVES_COLOR);
+    drawHUDText(TextFormat("Level: %d", currentLevel), 480, LEVEL_COLOR);
+    drawHUDText(TextFormat("Best: %d", highScore), 800, SCORE_COLOR);
+    if(overdriveActive){
+        drawHUDText(TextFormat("Score: %d x2", score), 1120, OVERDRIVE_COLOR);
+    }
+    else{
+        drawHUDText(TextFormat("Score: %d", score), 1120, SCORE_COLOR);
+    }
+    DrawText("P - Pause", GetScreenWidth() - 140, GetScreenHeight() - 30, 20, Fade(INSTRUCTION_COLOR, 0.6f));
+}
+
 void Game::draw()
 {   
     // Render Main-Menu
@@ -837,12 +882,8 @@ void Game::draw()
     EndMode2D();
 
     // Display Game Status
-    DrawRectangle(0, 0, GetScreenWidth(), 60, Fade(RAYWHITE, 0.05f));
-    drawHUDText(TextFormat("Lives: %d", lives), 160, LIVES_COLOR);
-    drawHUDText(TextFormat("Level: %d", currentLevel), 480, LEVEL_COLOR);
-    drawHUDText(TextFormat("Best: %d", highScore), 800, SCORE_COLOR);
-    drawHUDText(TextFormat("Score: %d", score), 1120, SCORE_COLOR);
-    DrawText("P - Pause", GetScreenWidth() - 140, GetScreenHeight() - 30, 20, Fade(INSTRUCTION_COLOR, 0.6f));
+    displayGameStatus();
+
 
     float textY = paddle.getBounds().y - 75.0f;
     if(!ballLaunched && currentState == GameState::PLAYING){

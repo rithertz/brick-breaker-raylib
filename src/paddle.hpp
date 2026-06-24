@@ -10,7 +10,6 @@ class Paddle{
         const float expandedWidth = 220.0f;
         // Paddle speed constants.
         const float defaultSpeed = 500.0f;
-        const float boostedSpeed = 750.0f;
 
         Rectangle bounds;
         Color paddleColor;
@@ -19,7 +18,7 @@ class Paddle{
         Paddle(Rectangle bounds);
 
         bool isExpanded() const;
-        bool isSpeedBoosted() const;
+
 
         void drawPaddle() const;
         void moveLeft(float dt);
@@ -28,7 +27,7 @@ class Paddle{
         void expand();
         void resetSize();
         void setSpeed(float speed);
-        void activateSpeedBoost();
+        void activateSpeedBoost(float boost);
         void deactivateSpeedBoost();
 
         Rectangle getBounds() const;

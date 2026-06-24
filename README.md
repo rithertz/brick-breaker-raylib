@@ -185,6 +185,11 @@ Completed:
 * Weighted power-up spawning implemented
 * Power-up balancing and spawn restrictions added
 * Overdrive power-up foundation implemented
+* Overdrive gameplay effects:
+  - Increased paddle speed
+  - Increased ball speed
+  - Score multiplier
+* Gameplay variety and reward mechanics significantly improved
 
 ## Screenshots
 

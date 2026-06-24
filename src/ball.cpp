@@ -7,7 +7,8 @@ Ball::Ball(Vector2 initialPosition, Vector2 intialVelocity) : position(initialPo
     radius = 10.0f;
     ballColor = {240, 245, 255, 255};
     previousPosition = position;
-    launchSpeed = 300.0f;
+    launchSpeed = defaultLaunchSpeed;
+    previousSpeed = Vector2Length(velocity);
 }
 
 void Ball::handleCollision()
@@ -143,4 +144,26 @@ void Ball::increaseLaunchSpeed(float amount)
 void Ball::resetLaunchSpeed()
 {
     launchSpeed = 300.0f;
+}
+
+void Ball::activateSpeedBoost(float boost)
+{
+    // Remember the current ball speed.
+    previousSpeed = Vector2Length(velocity);
+
+    // Preserve direction and increase speed.
+    velocity = Vector2Scale(Vector2Normalize(velocity), previousSpeed * boost);
+    launchSpeed = boostedLaunchSpeed;
+}
+
+void Ball::deactivateSpeedBoost()
+{
+    // Restore the speed that existed before Overdrive.
+    velocity = Vector2Scale(Vector2Normalize(velocity), previousSpeed);
+    launchSpeed = defaultLaunchSpeed;
+}
+
+bool Ball::isSpeedBoosted() const
+{
+    return (launchSpeed == boostedLaunchSpeed);
 }
