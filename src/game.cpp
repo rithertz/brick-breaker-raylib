@@ -868,6 +868,9 @@ void Game::draw()
     
     // Render entities
     paddle.drawPaddle();
+    if(overdriveActive){
+        paddle.drawOverdriveEffect(overdriveTimer / OVERDRIVE_DURATION);
+    }
     ball.drawBall();
     for(const Brick& brick : bricks){
         brick.draw();

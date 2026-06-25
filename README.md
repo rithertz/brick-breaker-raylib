@@ -184,12 +184,33 @@ Completed:
 * Gameplay variety and reward mechanics significantly improved
 * Weighted power-up spawning implemented
 * Power-up balancing and spawn restrictions added
-* Overdrive power-up foundation implemented
+* Overdrive power-up implemented
 * Overdrive gameplay effects:
   - Increased paddle speed
   - Increased ball speed
   - Score multiplier
+* Overdrive visual feedback system implemented:
+  - Energy trail effects
+  - Animated paddle glow
+  - Dynamic overdrive coloring
+  - Clockwise perimeter fuse countdown
+  - Moving spark indicator
+  - Critical-state warning effects
+  - Color transition as timer expires
+* Power-up balancing and spawn restrictions added
 * Gameplay variety and reward mechanics significantly improved
+
+### Milestone 12.5 - Overdrive Visual Overhaul
+
+Completed:
+
+* Animated overdrive visual system implemented
+* Clockwise perimeter fuse countdown implemented
+* Dynamic spark traversal implemented
+* Paddle energy trail effects implemented
+* Color-transition warning system implemented
+* Critical-state visual feedback implemented
+* Overdrive gameplay state significantly enhanced
 
 ## Screenshots
 
@@ -214,6 +235,9 @@ Completed:
 ### Milestone 10 - Advanced Brick Type - I (strong brick)
 ![Milestone 10 Strong brick type](screenshots/milestone-10-strong-brick.png)
 
+### Milestone 12 - Power-Ups
+![Milestone 12 Power-ups](screenshots/milestone-12-powerups.png)
+
 ## Planned Features
 
 ### Core Gameplay
@@ -229,7 +253,9 @@ Completed:
 
 ### Polish
 
-* Additional visual effects
+* Ball motion trails
+* Impact feedback effects
+* Additional particle systems
 * Pause menu enhancements
 * Visual theme improvements
 
@@ -243,12 +269,13 @@ Completed:
 
 ## Project Statistics
 
-* ~1,300+ lines of C++ code
-* 12 completed milestones
+* ~1,800+ lines of C++ code
+* 12.5 completed milestones
 * 5 game states
 * 3 power-up types
 * 2 brick types
 * 3 playable levels
+* Advanced visual feedback systems
 
 ## Repository Structure
 
@@ -274,7 +301,8 @@ Brick Breaker/
 │   ├── milestone-5-gameOver.png
 │   ├── milestone-7-score-restart.png
 │   ├── milestone-9-uiux.png
-│   └── milestone-10-strong-brick.png
+│   ├── milestone-10-strong-brick.png
+│   └── milestone-12-powerups.png
 │
 ├── src/
 │   ├── main.cpp
