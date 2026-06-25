@@ -143,7 +143,7 @@ void Game::handleBrickCollisions()
                 startScreenShake(0.08f, 4.0f);
 
                 // Spawn power-up with a small random chance (30%)
-                if(rand() % 100 < 100){
+                if(rand() % 100 < 30){
                     Vector2 center = {brick.getBounds().x + brick.getBounds().width / 2, brick.getBounds().y + brick.getBounds().height / 2};
                     spawnPowerUp(center);
                 }

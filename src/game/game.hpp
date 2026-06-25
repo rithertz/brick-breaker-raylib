@@ -1,10 +1,12 @@
 #pragma once
+
 #include "raylib.h"
-#include "paddle.hpp"
-#include "ball.hpp"
-#include "brick.hpp"
-#include "powerup.hpp"
 #include <vector>
+
+#include "../entities/paddle.hpp"
+#include "../entities/ball.hpp"
+#include "../entities/brick.hpp"
+#include "../entities/powerup.hpp"
 
 using namespace std;
 

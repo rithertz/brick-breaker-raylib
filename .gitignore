@@ -2,19 +2,30 @@
 *.exe
 main
 
-# Build outputs
-build/
-
-# Debug symbols
-*.dsym
-
 # Object files
 *.o
 *.obj
 
+# Build folders
+build/
+src/build/
+
+# Debug symbols
+*.pdb
+*.ilk
+*.dsym
+
+# Temporary files
+*.tmp
+*.log
+
 # OS files
 .DS_Store
+Thumbs.db
 
-# Text files
+# Local project notes
 Project Plan.txt
 loc.txt
+
+# Backup files
+*.old

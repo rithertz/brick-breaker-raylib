@@ -212,6 +212,20 @@ Completed:
 * Critical-state visual feedback implemented
 * Overdrive gameplay state significantly enhanced
 
+### Milestone 13.1 - Project Architecture Refactor
+
+Completed:
+
+* Source files reorganized into dedicated modules
+* Game and entity code separated into folders
+* Modular project structure introduced
+* Build system updated for scalable architecture
+* Compiler toolchain migrated to w64devkit
+* Include paths reorganized
+* VS Code launch and task configurations updated
+* Build pipeline modernized
+* Project structure prepared for future system extraction
+
 ## Screenshots
 
 ### Milestone 1 - Paddle
@@ -270,7 +284,7 @@ Completed:
 ## Project Statistics
 
 * ~1,800+ lines of C++ code
-* 12.5 completed milestones
+* 13 completed milestones
 * 5 game states
 * 3 power-up types
 * 2 brick types
@@ -279,44 +293,37 @@ Completed:
 
 ## Repository Structure
 
-```text
 Brick Breaker/
 │
 ├── assets/
 │   └── sounds/
-│       ├── paddle_hit.wav
-│       ├── brick_break.wav
-│       ├── armor_break.wav
-│       ├── level_complete.wav
-│       ├── victory_sound.wav
-│       └── game_over.wav
 │
 ├── data/
 │   └── highscore.txt
 │
 ├── screenshots/
-│   ├── milestone-1-paddle.png
-│   ├── milestone-2-ball.png
-│   ├── milestone-4-bricks.png
-│   ├── milestone-5-gameOver.png
-│   ├── milestone-7-score-restart.png
-│   ├── milestone-9-uiux.png
-│   ├── milestone-10-strong-brick.png
-│   └── milestone-12-powerups.png
 │
 ├── src/
+│   │
 │   ├── main.cpp
-│   ├── game.hpp
-│   ├── game.cpp
-│   ├── paddle.hpp
-│   ├── paddle.cpp
-│   ├── ball.hpp
-│   ├── ball.cpp
-│   ├── brick.hpp
-│   ├── brick.cpp
-│   ├── powerup.hpp
-│   └── powerup.cpp
+│   │
+│   ├── game/
+│   │   ├── game.hpp
+│   │   └── game.cpp
+│   │
+│   ├── entities/
+│   │   ├── paddle.hpp
+│   │   ├── paddle.cpp
+│   │   ├── ball.hpp
+│   │   ├── ball.cpp
+│   │   ├── brick.hpp
+│   │   ├── brick.cpp
+│   │   ├── powerup.hpp
+│   │   └── powerup.cpp
+│   │
+│   ├── managers/
+│   │
+│   └── states/
 │
 ├── README.md
 └── Makefile
-```

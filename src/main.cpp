@@ -1,5 +1,5 @@
-#include<raylib.h>
-#include "game.hpp"
+#include <raylib.h>
+#include "game/game.hpp"
 
 // Global Constants
 const int FPS = 120;
