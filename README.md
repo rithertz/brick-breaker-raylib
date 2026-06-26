@@ -212,7 +212,7 @@ Completed:
 * Critical-state visual feedback implemented
 * Overdrive gameplay state significantly enhanced
 
-### Milestone 13.1 - Project Architecture Refactor
+### Milestone 13.1 — Project Architecture Refactor
 
 Completed:
 
@@ -222,9 +222,26 @@ Completed:
 * Build system updated for scalable architecture
 * Compiler toolchain migrated to w64devkit
 * Include paths reorganized
-* VS Code launch and task configurations updated
 * Build pipeline modernized
-* Project structure prepared for future system extraction
+* Foundation established for future system extraction
+
+
+### Milestone 13.2 — Game Architecture Cleanup
+
+Completed:
+
+* Game member variawbles grouped by responsibility
+* Gameplay, audio, entities, UI, and effects sections introduced
+* Game functions organized into logical subsystems
+* Collision, level, power-up, UI, and persistence responsibilities separated
+* Header documentation added
+* Centralized constants system introduced
+* UI colors moved to shared constants
+* Gameplay balancing constants extracted
+* Overdrive configuration centralized
+* Reduced magic numbers and duplicated values
+* Improved maintainability and readability
+
 
 ## Screenshots
 
@@ -260,10 +277,13 @@ Completed:
 * Additional brick types
 * Difficulty balancing
 
-### Game Systems
+### Architecture
 
-* Save/load support
-* Settings menu
+* Particle system extraction
+* HUD renderer extraction
+* Power-up manager
+* Level manager
+* Additional game states
 
 ### Polish
 
@@ -307,6 +327,9 @@ Brick Breaker/
 │   │
 │   ├── main.cpp
 │   │
+│   ├── core/
+│   │   └── constants.hpp
+│   │
 │   ├── game/
 │   │   ├── game.hpp
 │   │   └── game.cpp
@@ -326,4 +349,5 @@ Brick Breaker/
 │   └── states/
 │
 ├── README.md
-└── Makefile
+├── Makefile
+└── .gitignore

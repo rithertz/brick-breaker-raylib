@@ -1,3 +1,15 @@
+/*
+    game.hpp
+    Central game controller.
+
+    Responsibilities:
+    - Game state management
+    - Gameplay rules
+    - Entity ownership
+    - Update loop
+    - Rendering coordination
+*/
+
 #pragma once
 
 #include "raylib.h"
@@ -7,8 +19,6 @@
 #include "../entities/ball.hpp"
 #include "../entities/brick.hpp"
 #include "../entities/powerup.hpp"
-
-using namespace std;
 
 struct Particle{
     Vector2 position;
@@ -29,69 +39,76 @@ enum class GameState
 
 class Game{
     private:
-        int lives, currentLevel, score, highScore, bricksDestroyed, strongBricksDestroyed;
-        bool ballLaunched, levelComplete, paddleExpanded, overdriveActive;
-        float screenShakeTime, screenShakeStrength, paddleExpandTimer, overdriveTimer;
-
-        Paddle paddle;
-        Ball ball;
-        vector<Brick> bricks;
-        vector<Particle> particles;
-        vector<PowerUp> powerUps;
+        // Game state
         GameState currentState;
 
-        Sound paddleHitSound, brickBreakSound, levelCompleteSound, gameOverSound, armorBreakSound, victorySound;
+        // Gameplay statistics
+        int lives, currentLevel, score, highScore, bricksDestroyed, strongBricksDestroyed;
 
+        // Gameplay flags
+        bool ballLaunched, levelComplete, paddleExpanded, overdriveActive;
+
+        // Timers and effects
+        float screenShakeTime, screenShakeStrength, paddleExpandTimer, overdriveTimer;
+
+        // Entities
+        Paddle paddle;
+        Ball ball;
+
+        std::vector<Brick> bricks;
+        std::vector<Particle> particles;
+        std::vector<PowerUp> powerUps;
+
+        // Camera
         Camera2D camera;
 
-        bool checkCollisionWithPaddle();
-        bool isLevelComplete() const;
-        bool isStrongBrickLevel1(int row, int col) const;
-        bool isStrongBrickLevel2(int row, int col) const;
-        bool isStrongBrickLevel3(int row, int col) const;
-        bool checkPowerUpCollision(const PowerUp& powerUp) const;
-        bool hasOverdrivePowerUp() const;
+        // Audio
+        Sound paddleHitSound, brickBreakSound, levelCompleteSound, gameOverSound, armorBreakSound, victorySound;
 
-        int getScoreMultiplier() const;
+        /* Member-Functions */
 
-        float getNormalizedImpactOffset();    
-
-        void initSounds();
-        void handleCollisionWithPaddle();
-        void handleBrickCollisions();
-        void addNormalBrick(int row, int col);
-        void addStrongBrick(int row, int col);
-        void addBrick(int row, int col, BrickType type);
-        void loadLevel(int levelNumber);
-        void loadLevel1();
-        void loadLevel2();
-        void loadLevel3();
-        void restartGame();
-        void resetLives();
-        void resetScore();
-        void resetLevel();
-        void increaseScore(int score);
-        void resetBricksDestroyed();
-        void spawnBrickParticles(Rectangle brickBounds, Color brickColor);
-        void spawnArmorBreakParticles(Rectangle bounds, Color color);
-        void updateParticles(float dt);
-        void drawParticles();
-        void startScreenShake(float duration, float strength);
-        void initializeCamera();
-        void drawOverlay(Color color);
+        // Input
         void handlePauseInput();
         void handleRestartInput();
         void handlePaddleInput(float dt);
         void handleBallLaunchInput();
-        void updateHighScore();
-        void drawCenteredText(const char* text, int y, int fontSize, Color color);
-        void drawEndScreen(const char* title, Color titleColor, const char* instruction);
-        void drawHUDText(const char* text, int centerX, Color color);
-        void drawPauseScreen();
-        void loadHighScore();
-        void saveHighScore() const;
         void handleMainMenuInput();
-        void drawMainMenu();
+
+        //Audio
+        void initSounds();
+        void loadSounds();
+        void adjustVolume();
+        void unloadSounds();
+
+        // Collision
+        bool checkCollisionWithPaddle();
+        bool checkPowerUpCollision(const PowerUp& powerUp) const;
+        void handleCollisionWithPaddle();
+        void handleBrickCollisions();
+
+        // Level Management
+        bool isLevelComplete() const;
+        void loadLevel(int levelNumber);
+        void loadLevel1();
+        void loadLevel2();
+        void loadLevel3();
+
+        // Brick helpers
+        void addNormalBrick(int row, int col);
+        void addStrongBrick(int row, int col);
+        void addBrick(int row, int col, BrickType type);
+        bool isStrongBrickLevel1(int row, int col) const;
+        bool isStrongBrickLevel2(int row, int col) const;
+        bool isStrongBrickLevel3(int row, int col) const;
+        Color getBrickColor(int row);
+
+        //Scoring
+        int getScoreMultiplier() const;
+        void increaseScore(int score);
+        void resetScore();
+
+        // Power-ups
+        bool hasOverdrivePowerUp() const;
         void spawnPowerUp(Vector2 position);
         void updatePowerUps(float dt);
         void applyPowerUp(PowerUpType type);
@@ -101,15 +118,45 @@ class Game{
         void applyExtraLife();
         void applyExpandPaddle();
         void applyOverdrive();
-        void displayGameStatus();
-        Color getBrickColor(int row);
-
         PowerUpType getRandomPowerUpType() const;
+
+        // Particles
+        void spawnBrickParticles(Rectangle brickBounds, Color brickColor);
+        void spawnArmorBreakParticles(Rectangle bounds, Color color);
+        void updateParticles(float dt);
+        void drawParticles();
+
+        // Persistence
+        void loadHighScore();
+        void saveHighScore() const;
+        void updateHighScore();
+        
+        // UI
+        void drawOverlay(Color color);
+        void drawCenteredText(const char* text, int y, int fontSize, Color color);
+        void drawEndScreen(const char* title, Color titleColor, const char* instruction);
+        void drawHUDText(const char* text, int centerX, Color color);
+        void drawPauseScreen();
+        void drawMainMenu();        
+        void displayGameStatus();//HUD
+
+        // Visual Effects
+        void startScreenShake(float duration, float strength);
+        void initializeCamera();
+
+        // Game Control
+        void restartGame();
+        void resetLives();
+        void resetLevel();
+        void resetBricksDestroyed();
+
+        // Utility
+        float getNormalizedImpactOffset();    
 
     public:
         Game();
+        ~Game();
         void handleInput();
         void update();
         void draw();
-        ~Game();
 };

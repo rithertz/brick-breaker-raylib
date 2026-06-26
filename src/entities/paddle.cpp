@@ -1,5 +1,6 @@
 
 #include "paddle.hpp"
+#include "../core/constants.hpp"
 #include<cmath>
 
 Paddle::Paddle(Rectangle bounds) {

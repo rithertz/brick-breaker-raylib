@@ -1,33 +1,13 @@
 #include "game.hpp"
 #include "raymath.h"
+#include "../core/constants.hpp"
 #include <iostream>
 #include <cstdlib>
 #include <algorithm>
 #include <string>
 #include <fstream>
 
-using namespace std;
-
-// Color Constants
-const Color SCORE_COLOR = {255, 215, 100, 255};
-const Color LIVES_COLOR = {255, 120, 120, 255};
-const Color LEVEL_COLOR = {80, 220, 255, 255};
-const Color GAME_OVER_COLOR = {255, 80, 80, 255};
-const Color LEVEL_COMPLETE_COLOR = {120, 255, 140, 255};
-const Color INSTRUCTION_COLOR = {200, 210, 230, 255};
-const Color OVERLAY_COLOR = {8, 15, 25, 220};
-const Color BOOST_COLOR = {170, 220, 255, 255};
-const Color OVERDRIVE_COLOR = {255, 180, 60, 255};
-
-// Game Constants
-const int MAX_LIVES = 3;
-const float OVERDRIVE_DURATION = 15.0f;
-const float OVERDRIVE_BALL_MULTIPLIER = 1.25f;
-const float OVERDRIVE_PADDLE_MULTIPLIER = 1.50f;
-const int OVERDRIVE_SCORE_MULTIPLIER = 2;
-
-
-Game::Game() : lives(MAX_LIVES), currentLevel(1), score(0), highScore(0), bricksDestroyed(0), strongBricksDestroyed(0),
+Game::Game() : lives(Gameplay::MAX_LIVES), currentLevel(1), score(0), highScore(0), bricksDestroyed(0), strongBricksDestroyed(0),
                ballLaunched(false), levelComplete(false), paddleExpanded(false), overdriveActive(false),
                screenShakeTime(0.0f), screenShakeStrength(0.0f), paddleExpandTimer(0.0f), overdriveTimer(0.0f),
                paddle(Rectangle{580, 660, 150, 25}), ball({640, 630}, {900, 900}),
@@ -38,9 +18,21 @@ Game::Game() : lives(MAX_LIVES), currentLevel(1), score(0), highScore(0), bricks
     loadHighScore();
     loadLevel(1);
 }
+Game::~Game()
+{   
+    unloadSounds();
+}
 
 void Game::initSounds()
 {   
+    // Load Sounds
+    loadSounds();
+    // Adjust Volume
+    adjustVolume();
+}
+
+void Game::loadSounds()
+{
     // Load Sounds
     paddleHitSound = LoadSound("assets/sounds/paddle_hit.wav");
     brickBreakSound = LoadSound("assets/sounds/brick_break.wav");
@@ -48,8 +40,10 @@ void Game::initSounds()
     gameOverSound = LoadSound("assets/sounds/game_over.wav");
     armorBreakSound = LoadSound("assets/sounds/armor_break.wav");
     victorySound = LoadSound("assets/sounds/victory_sound.wav");
-    
+}
 
+void Game::adjustVolume()
+{
     // Adjust Volume
     SetSoundVolume(brickBreakSound, 0.5f);
     SetSoundVolume(paddleHitSound, 0.7f);
@@ -59,6 +53,15 @@ void Game::initSounds()
     SetSoundVolume(victorySound, 0.7f);
 }
 
+void Game::unloadSounds()
+{
+    UnloadSound(paddleHitSound);
+    UnloadSound(brickBreakSound);
+    UnloadSound(levelCompleteSound);
+    UnloadSound(gameOverSound);
+    UnloadSound(armorBreakSound);
+    UnloadSound(victorySound);
+}
 
 bool Game::checkCollisionWithPaddle()
 {
@@ -126,7 +129,7 @@ void Game::handleBrickCollisions()
 
             brick.takeDamage();
             if(brick.getType() == BrickType::STRONG && brick.isAlive()){
-                increaseScore(50);
+                increaseScore(Scoring::STRONG_HIT);
                 PlaySound(armorBreakSound);
                 spawnArmorBreakParticles(brick.getBounds(), brick.getColor());
                 startScreenShake(0.04f, 2.0f);
@@ -136,14 +139,14 @@ void Game::handleBrickCollisions()
                 if(brick.getType() == BrickType::STRONG){
                     strongBricksDestroyed++;
                 }
-                increaseScore(100);
+                increaseScore(Scoring::BRICK);
 
                 spawnBrickParticles(brick.getBounds(), brick.getColor());
                 PlaySound(brickBreakSound);
                 startScreenShake(0.08f, 4.0f);
 
                 // Spawn power-up with a small random chance (30%)
-                if(rand() % 100 < 30){
+                if(rand() % 100 < PowerUps::SPAWN_CHANCE){
                     Vector2 center = {brick.getBounds().x + brick.getBounds().width / 2, brick.getBounds().y + brick.getBounds().height / 2};
                     spawnPowerUp(center);
                 }
@@ -294,7 +297,7 @@ void Game::loadLevel3()
 
 void Game::resetLives()
 {
-    lives = MAX_LIVES;
+    lives = Gameplay::MAX_LIVES;
 }
 
 void Game::resetScore()
@@ -411,23 +414,21 @@ void Game::drawOverlay(Color color)
     DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), color);
 }
 
-
-
 Color Game::getBrickColor(int row)
 {
     switch(row){
         case 0:
-            return {255, 100, 100, 255};   // Red
+            return Colors::RED_BRICK;   // Red
         case 1:
-            return {255, 170, 80, 255};    // Orange
+            return Colors::ORANGE_BRICK;    // Orange
         case 2:
-            return {255, 230, 100, 255};   // Yellow
+            return Colors::YELLOW_BRICK;   // Yellow
         case 3:
-            return {120, 255, 140, 255};   // Green
+            return Colors::GREEN_BRICK;   // Green
         case 4:
-            return {80, 220, 255, 255};    // Cyan
+            return Colors::CYAN_BRICK;    // Cyan
         case 5:
-            return {180, 140, 255, 255};   // Purple
+            return Colors::PURPLE_BRICK;   // Purple
         default:
             return RAYWHITE;
     }
@@ -550,14 +551,14 @@ void Game::drawCenteredText(const char* text, int y, int fontSize, Color color)
 
 void Game::drawEndScreen(const char* title, Color titleColor, const char* instruction)
 {
-    drawOverlay(Fade(OVERLAY_COLOR, 0.90f));
+    drawOverlay(Fade(Colors::OVERLAY_COLOR, 0.90f));
     drawCenteredText(title, 250, 50, titleColor);
-    drawCenteredText(TextFormat("Final Score: %d", score), 330, 30, SCORE_COLOR);
-    drawCenteredText(TextFormat("High Score: %d", highScore), 370, 30, SCORE_COLOR);
-    drawCenteredText(TextFormat("Bricks Destroyed: %d", bricksDestroyed), 410, 30, LEVEL_COLOR);
-    drawCenteredText(TextFormat("Strong Bricks Destroyed: %d", strongBricksDestroyed), 450, 30, LEVEL_COLOR);
-    drawCenteredText(instruction, 510, 25, INSTRUCTION_COLOR);
-    drawCenteredText("M - Main Menu", 555, 25, INSTRUCTION_COLOR);
+    drawCenteredText(TextFormat("Final Score: %d", score), 330, 30, Colors::SCORE_COLOR);
+    drawCenteredText(TextFormat("High Score: %d", highScore), 370, 30, Colors::SCORE_COLOR);
+    drawCenteredText(TextFormat("Bricks Destroyed: %d", bricksDestroyed), 410, 30, Colors::LEVEL_COLOR);
+    drawCenteredText(TextFormat("Strong Bricks Destroyed: %d", strongBricksDestroyed), 450, 30, Colors::LEVEL_COLOR);
+    drawCenteredText(instruction, 510, 25, Colors::INSTRUCTION_COLOR);
+    drawCenteredText("M - Main Menu", 555, 25, Colors::INSTRUCTION_COLOR);
 }
 
 void Game::drawHUDText(const char* text, int centerX, Color color)
@@ -566,26 +567,19 @@ void Game::drawHUDText(const char* text, int centerX, Color color)
     DrawText(text, centerX - width / 2, 15, 30, color);
 }
 
-// void Game::drawPauseScreen()
-// {
-//     drawOverlay(Fade(OVERLAY_COLOR, 0.75f));
-//     drawCenteredText("PAUSED", 280, 50, RAYWHITE);
-//     drawCenteredText("Press P to Resume", 360, 25, INSTRUCTION_COLOR);
-// }
-
 void Game::drawPauseScreen()
 {
-    drawOverlay(Fade(OVERLAY_COLOR, 0.95f));
+    drawOverlay(Fade(Colors::OVERLAY_COLOR, 0.95f));
     drawCenteredText("PAUSED", 250, 55, RAYWHITE);
-    drawCenteredText(TextFormat("Current Score: %d", score), 340, 30, SCORE_COLOR);
-    drawCenteredText(TextFormat("High Score: %d", highScore), 380, 30, LEVEL_COLOR);
-    drawCenteredText("P - Resume", 460, 25, INSTRUCTION_COLOR);
-    drawCenteredText("M - Main Menu", 500, 25, INSTRUCTION_COLOR);
+    drawCenteredText(TextFormat("Current Score: %d", score), 340, 30, Colors::SCORE_COLOR);
+    drawCenteredText(TextFormat("High Score: %d", highScore), 380, 30, Colors::LEVEL_COLOR);
+    drawCenteredText("P - Resume", 460, 25, Colors::INSTRUCTION_COLOR);
+    drawCenteredText("M - Main Menu", 500, 25, Colors::INSTRUCTION_COLOR);
 }
 
 void Game::loadHighScore()
 {
-    ifstream file("data/highscore.txt");
+    std::ifstream file("data/highscore.txt");
 
     if(file.is_open()){
         file >> highScore;
@@ -595,7 +589,7 @@ void Game::loadHighScore()
 
 void Game::saveHighScore() const
 {
-    ofstream file("data/highscore.txt");
+    std::ofstream file("data/highscore.txt");
 
     if(file.is_open()){
         file << highScore;
@@ -613,9 +607,9 @@ void Game::handleMainMenuInput()
 
 void Game::drawMainMenu()
 {
-    drawCenteredText("BRICK BREAKER", 220, 70, SCORE_COLOR);
-    drawCenteredText("Press ANY KEY to Play", 350, 30, INSTRUCTION_COLOR);
-    drawCenteredText(TextFormat("High Score: %d", highScore), 420, 30, LEVEL_COLOR);
+    drawCenteredText("BRICK BREAKER", 220, 70, Colors::SCORE_COLOR);
+    drawCenteredText("Press ANY KEY to Play", 350, 30, Colors::INSTRUCTION_COLOR);
+    drawCenteredText(TextFormat("High Score: %d", highScore), 420, 30, Colors::LEVEL_COLOR);
 }
 
 void Game::spawnPowerUp(Vector2 position)
@@ -625,7 +619,7 @@ void Game::spawnPowerUp(Vector2 position)
     // Randomly choose a power-up type.
     PowerUpType type = getRandomPowerUpType();
     // Cap extra life power up at 6
-    while(type == PowerUpType::EXTRA_LIFE && lives >= 6){
+    while(type == PowerUpType::EXTRA_LIFE && lives >= PowerUps::EXTRA_LIFE_CAP){
         type = getRandomPowerUpType();
     }
     powerUps.push_back(PowerUp(bounds, type));
@@ -670,7 +664,7 @@ void Game::drawPowerUpStatus() const
     int width = MeasureText(text, 20);
     float x = paddle.getBounds().x + paddle.getBounds().width / 2.0f - width / 2.0f;
     float y = paddle.getBounds().y + paddle.getBounds().height + 15.0f;
-    DrawText(text, x, y, 20, BOOST_COLOR);
+    DrawText(text, x, y, 20, Colors::BOOST_COLOR);
     
 }
 
@@ -702,17 +696,17 @@ void Game::applyExpandPaddle()
 {
     paddle.expand();
     paddleExpanded = true;
-    paddleExpandTimer += 10.0f;//stack expansion time
-    paddleExpandTimer = min(paddleExpandTimer, 90.0f);// Prevent excessively long durations.
+    paddleExpandTimer += PowerUps::PADDLE_EXPAND_DURATION;//stack expansion time
+    paddleExpandTimer = std::min(paddleExpandTimer, PowerUps::MAX_EXPAND_DURATION);// Prevent excessively long durations.
 }
 
 void Game::applyOverdrive()
 {
     overdriveActive = true;
-    overdriveTimer = OVERDRIVE_DURATION;
+    overdriveTimer = Gameplay::OVERDRIVE_DURATION;
 
-    paddle.activateSpeedBoost(OVERDRIVE_PADDLE_MULTIPLIER);
-    ball.activateSpeedBoost(OVERDRIVE_BALL_MULTIPLIER);
+    paddle.activateSpeedBoost(Gameplay::OVERDRIVE_PADDLE_MULTIPLIER);
+    ball.activateSpeedBoost(Gameplay::OVERDRIVE_BALL_MULTIPLIER);
 }
 
 
@@ -738,8 +732,6 @@ void Game::updatePowerUps(float dt)
         powerUps.end()
     );
 }
-
-
 
 void Game::handleInput()
 {   
@@ -803,7 +795,7 @@ void Game::update()
             }
         }
         if(isLevelComplete() || levelComplete){
-            increaseScore(500);
+            increaseScore(Scoring::LEVEL_COMPLETE);
             updateHighScore();
             levelComplete = false;
             if(currentLevel < 3 && currentLevel >= 1){
@@ -815,7 +807,7 @@ void Game::update()
                 currentLevel++;
                 loadLevel(currentLevel);
 
-                ball.increaseLaunchSpeed(30.0f);
+                ball.increaseLaunchSpeed(Gameplay::LEVEL_SPEED_INCREASE);
                 resetLives();
                 paddle.reset();
                 ball.reset();
@@ -844,16 +836,16 @@ void Game::update()
 void Game::displayGameStatus()
 {
     DrawRectangle(0, 0, GetScreenWidth(), 60, Fade(RAYWHITE, 0.05f));
-    drawHUDText(TextFormat("Lives: %d", lives), 160, LIVES_COLOR);
-    drawHUDText(TextFormat("Level: %d", currentLevel), 480, LEVEL_COLOR);
-    drawHUDText(TextFormat("Best: %d", highScore), 800, SCORE_COLOR);
+    drawHUDText(TextFormat("Lives: %d", lives), 160, Colors::LIVES_COLOR);
+    drawHUDText(TextFormat("Level: %d", currentLevel), 480, Colors::LEVEL_COLOR);
+    drawHUDText(TextFormat("Best: %d", highScore), 800, Colors::SCORE_COLOR);
     if(overdriveActive){
-        drawHUDText(TextFormat("Score: %d x2", score), 1120, OVERDRIVE_COLOR);
+        drawHUDText(TextFormat("Score: %d x2", score), 1120, Colors::OVERDRIVE_COLOR);
     }
     else{
-        drawHUDText(TextFormat("Score: %d", score), 1120, SCORE_COLOR);
+        drawHUDText(TextFormat("Score: %d", score), 1120, Colors::SCORE_COLOR);
     }
-    DrawText("P - Pause", GetScreenWidth() - 140, GetScreenHeight() - 30, 20, Fade(INSTRUCTION_COLOR, 0.6f));
+    DrawText("P - Pause", GetScreenWidth() - 140, GetScreenHeight() - 30, 20, Fade(Colors::INSTRUCTION_COLOR, 0.6f));
 }
 
 void Game::draw()
@@ -869,7 +861,7 @@ void Game::draw()
     // Render entities
     paddle.drawPaddle();
     if(overdriveActive){
-        paddle.drawOverdriveEffect(overdriveTimer / OVERDRIVE_DURATION);
+        paddle.drawOverdriveEffect(overdriveTimer / Gameplay::OVERDRIVE_DURATION);
     }
     ball.drawBall();
     for(const Brick& brick : bricks){
@@ -890,17 +882,17 @@ void Game::draw()
 
     float textY = paddle.getBounds().y - 75.0f;
     if(!ballLaunched && currentState == GameState::PLAYING){
-        DrawText("Press UP to Launch", GetScreenWidth()/2 - 110, textY, 25, INSTRUCTION_COLOR);
+        DrawText("Press UP to Launch", GetScreenWidth()/2 - 110, textY, 25, Colors::INSTRUCTION_COLOR);
     }
 
     // Draw level-complete overlay
     if(currentState == GameState::LEVEL_COMPLETE){
-        drawEndScreen("YOU WIN!", LEVEL_COMPLETE_COLOR, "ENTER - Play again");
+        drawEndScreen("YOU WIN!", Colors::LEVEL_COMPLETE_COLOR, "ENTER - Play again");
     }
 
     //Draw game-over overlay
     if(currentState == GameState::GAME_OVER){
-        drawEndScreen("GAME OVER", GAME_OVER_COLOR, "ENTER - Play again");
+        drawEndScreen("GAME OVER", Colors::GAME_OVER_COLOR, "ENTER - Play again");
     }
 
     //Draw PAUSE overlay
@@ -909,12 +901,4 @@ void Game::draw()
     }
 }
 
-Game::~Game()
-{
-    UnloadSound(paddleHitSound);
-    UnloadSound(brickBreakSound);
-    UnloadSound(levelCompleteSound);
-    UnloadSound(gameOverSound);
-    UnloadSound(armorBreakSound);
-    UnloadSound(victorySound);
-}
+
